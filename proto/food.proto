@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "proto/ingredient.proto";
+
+message Food {
+    string name= 1;
+    int serving =2;
+    repeated Ingredient =3;
+    string reference_url = 4;
+}
