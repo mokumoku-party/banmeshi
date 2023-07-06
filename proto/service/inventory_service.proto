@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "user.proto";
+import "ingredient.proto";
+import "void.proto";
+
+message Inventory { repeated Ingredient ingredients = 1; }
+
+message Item {
+  User user = 1;
+  Ingredient ingredient = 2;
+}
+
+// 在庫を管理する
+service InventoryService {
+  // ユーザの在庫を取得
+  rpc FetchInventory(User) returns (Inventory) {}
+
+  // ユーザの在庫に食材を追加
+  rpc AddInventory(Item) returns (Void) {}
+}

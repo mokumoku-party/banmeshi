@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "user.proto";
+import "food.proto";
+import "void.proto";
+
+message RecommendFood { repeated Food recommend_foods = 1; }
+
+message Recipe {
+  User user = 1;
+  Food food = 2;
+}
+
+// レシピを管理する
+service RecipeService {
+  // ユーザが作る予定のレシピを取得
+  rpc FetchRecipe(User) returns (Food);
+  // ユーザが作るレシピを設定
+  rpc SelectRecipe(Recipe) returns (Void) {}
+  // 作った料理をレシピとして登録
+  rpc RegisterFoodAsRecipe(Recipe) returns (Void) {}
+  // レシピのリコメンドを取得
+  rpc FetchRecommendRecipe(User) returns (RecommendFood);
+}
