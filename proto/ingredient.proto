@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+enum IngredientUnit {
+  quantity = 0;
+  grams = 1;
+}
+
+// 食材
+message Ingredient {
+  // 食材名
+  string name = 1;
+  // 数量
+  double amount = 2;
+  // 単位
+  IngredientUnit unit = 3;
+  // 登録した日にち
+  int64 register_date = 4;
+}

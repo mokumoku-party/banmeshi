@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "user.proto";
+import "void.proto";
+
+// ユーザ情報を管理する
+service UserService {
+  // ユーザでログインする
+  rpc Login(User) returns (Void) {}
+}

@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+// 空データ
+// protobufにvoidがないため定義している
+message Void {}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "ingredient.proto";
+
+// 料理
+message Food {
+  // 料理名
+  string name = 1;
+  // 何人前
+  int32 serving = 2;
+  // 必要な食材リスト
+  repeated Ingredient ingredient = 3;
+  // レシピのURL
+  string reference_url = 4;
+}
