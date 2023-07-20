@@ -6,6 +6,8 @@ import "void.proto";
 
 message RecommendFood { repeated Food recommend_foods = 1; }
 
+option go_package = "server/pkg/grpc";
+
 message Recipe {
   User user = 1;
   Food food = 2;
