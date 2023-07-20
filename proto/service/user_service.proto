@@ -3,6 +3,8 @@ syntax = "proto3";
 import "user.proto";
 import "void.proto";
 
+option go_package = "server/pkg/grpc";
+
 // ユーザ情報を管理する
 service UserService {
   // ユーザでログインする

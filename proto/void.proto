@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "server/pkg/grpc";
+
 // 空データ
 // protobufにvoidがないため定義している
 message Void {}

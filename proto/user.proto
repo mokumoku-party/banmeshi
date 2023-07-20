@@ -1,4 +1,6 @@
 syntax = "proto3";
 
+option go_package = "server/pkg/grpc";
+
 // ユーザ
 message User { string name = 1; }

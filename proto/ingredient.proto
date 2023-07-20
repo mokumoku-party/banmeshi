@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "server/pkg/grpc";
+
 enum IngredientUnit {
   quantity = 0;
   grams = 1;

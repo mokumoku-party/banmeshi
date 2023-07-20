@@ -4,6 +4,8 @@ import "user.proto";
 import "ingredient.proto";
 import "void.proto";
 
+option go_package = "server/pkg/grpc";
+
 message Inventory { repeated Ingredient ingredients = 1; }
 
 message Item {

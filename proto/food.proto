@@ -2,6 +2,8 @@ syntax = "proto3";
 
 import "ingredient.proto";
 
+option go_package = "server/pkg/grpc";
+
 // 料理
 message Food {
   // 料理名
