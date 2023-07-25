@@ -13,7 +13,7 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'ingredient.pb.dart' as $5;
+import 'ingredient.pb.dart' as $0;
 
 class Food extends $pb.GeneratedMessage {
   factory Food() => create();
@@ -24,7 +24,7 @@ class Food extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Food', createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..a<$core.int>(2, _omitFieldNames ? '' : 'serving', $pb.PbFieldType.O3)
-    ..pc<$5.Ingredient>(3, _omitFieldNames ? '' : 'ingredient', $pb.PbFieldType.PM, subBuilder: $5.Ingredient.create)
+    ..pc<$0.Ingredient>(3, _omitFieldNames ? '' : 'ingredient', $pb.PbFieldType.PM, subBuilder: $0.Ingredient.create)
     ..aOS(4, _omitFieldNames ? '' : 'referenceUrl')
     ..hasRequiredFields = false
   ;
@@ -69,7 +69,7 @@ class Food extends $pb.GeneratedMessage {
   void clearServing() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.List<$5.Ingredient> get ingredient => $_getList(2);
+  $core.List<$0.Ingredient> get ingredient => $_getList(2);
 
   @$pb.TagNumber(4)
   $core.String get referenceUrl => $_getSZ(3);

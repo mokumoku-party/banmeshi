@@ -1,5 +1,4 @@
 import 'package:banmeshi_flutter/model/user_controller.dart';
-import 'package:banmeshi_flutter/repository/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,9 +33,6 @@ class LoginPage extends HookConsumerWidget {
             onPressed: textController.text.isNotEmpty
                 ? () {
                     ref.read(userProvider.notifier).create(textController.text);
-
-                    final user = ref.read(userProvider)!;
-                    ref.read(userRepository).login(user);
                   }
                 : null,
             child: const Text(
