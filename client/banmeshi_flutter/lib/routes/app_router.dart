@@ -5,24 +5,28 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final appRouterProvider = Provider(
-  (ref) => GoRouter(
-    routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const HomePage(),
-        redirect: (context, state) {
-          final user = ref.read(userProvider);
-          if (user == null) {
-            return '/login';
-          }
+  (ref) {
+    final user = ref.watch(userProvider);
 
-          return null;
-        },
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginPage(),
-      )
-    ],
-  ),
+    return GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const HomePage(),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => const LoginPage(),
+        )
+      ],
+      redirect: (context, state) {
+        if (user == null) {
+          return '/login';
+        }
+
+        return null;
+      },
+    );
+  },
 );
