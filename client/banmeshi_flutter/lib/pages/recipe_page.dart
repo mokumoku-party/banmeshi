@@ -13,7 +13,6 @@ class RecipePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final forms = useState([
       const IngredientForm(),
-      const IngredientForm(),
     ]);
 
     return Scaffold(
@@ -24,39 +23,50 @@ class RecipePage extends HookConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                child: DragTarget<Ingredient>(
-                  builder: (context, candidateData, rejectedData) {
-                    return ListView(
-                      shrinkWrap: true,
-                      children: [
-                        ...forms.value,
-                        Padding(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const TextField(
+                      decoration: InputDecoration(hintText: 'カレー'),
+                    ),
+                    DragTarget<Ingredient>(
+                      builder: (context, candidateData, rejectedData) {
+                        return Padding(
                           padding: const EdgeInsets.all(16),
-                          child: IconButton(
-                            onPressed: () {
-                              forms.value = [
-                                ...forms.value,
-                                const IngredientForm(),
-                              ];
-                            },
-                            icon: const Icon(Icons.add),
+                          child: ListView(
+                            shrinkWrap: true,
+                            children: [
+                              ...forms.value,
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: IconButton(
+                                  onPressed: () {
+                                    forms.value = [
+                                      ...forms.value,
+                                      const IngredientForm(),
+                                    ];
+                                  },
+                                  icon: const Icon(Icons.add),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    );
-                  },
-                  // 新しい食材だけ追加する
-                  onWillAccept: (data) =>
-                      forms.value.every((form) => form.name != data?.name),
-                  onAccept: (data) {
-                    forms.value = [
-                      IngredientForm(
-                        name: data.name,
-                        amount: data.amount.toInt(),
-                      ),
-                      ...forms.value,
-                    ];
-                  },
+                        );
+                      },
+                      // 新しい食材だけ追加する
+                      onWillAccept: (data) =>
+                          forms.value.every((form) => form.name != data?.name),
+                      onAccept: (data) {
+                        forms.value = [
+                          IngredientForm(
+                            name: data.name,
+                            amount: data.amount.toInt(),
+                          ),
+                          ...forms.value,
+                        ];
+                      },
+                    ),
+                  ],
                 ),
               ),
               Flexible(
@@ -93,7 +103,7 @@ class RecipePage extends HookConsumerWidget {
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(16),
-                        child: Text('更新'),
+                        child: Text('完成'),
                       ),
                     )
                   ],
