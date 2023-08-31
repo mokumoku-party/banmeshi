@@ -1,5 +1,6 @@
 import 'package:banmeshi_flutter/pages/home_page.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
+import 'package:banmeshi_flutter/widget/ingredient_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -10,8 +11,8 @@ class RegisterPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final forms = useState([
-      const _InputForm(),
-      const _InputForm(),
+      const IngredientForm(),
+      const IngredientForm(),
     ]);
 
     return Scaffold(
@@ -34,7 +35,7 @@ class RegisterPage extends HookConsumerWidget {
                             onPressed: () {
                               forms.value = [
                                 ...forms.value,
-                                const _InputForm(),
+                                const IngredientForm(),
                               ];
                             },
                             icon: const Icon(Icons.add),
@@ -45,12 +46,12 @@ class RegisterPage extends HookConsumerWidget {
                   },
                   // 新しい食材だけ追加する
                   onWillAccept: (data) =>
-                      forms.value.every((form) => form.initName != data?[0]),
+                      forms.value.every((form) => form.name != data?[0]),
                   onAccept: (data) {
                     forms.value = [
-                      _InputForm(
-                        initName: data[0],
-                        initAmount: int.parse(
+                      IngredientForm(
+                        name: data[0],
+                        amount: int.parse(
                           data[1],
                         ),
                       ),
@@ -102,40 +103,6 @@ class RegisterPage extends HookConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _InputForm extends StatelessWidget {
-  final String initName;
-  final int initAmount;
-
-  const _InputForm({this.initName = '', this.initAmount = 1});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 640,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(
-            flex: 7,
-            child: TextField(
-              controller: TextEditingController(text: initName),
-              decoration: const InputDecoration(hintText: 'にんじん'),
-            ),
-          ),
-          const SizedBox(width: 32),
-          Flexible(
-            flex: 3,
-            child: TextField(
-              controller: TextEditingController(text: initAmount.toString()),
-              decoration: const InputDecoration(hintText: '3'),
-            ),
-          ),
-        ],
       ),
     );
   }
