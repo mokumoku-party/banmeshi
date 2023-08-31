@@ -9,8 +9,40 @@ class HomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
 
+    const foodName = 'カレー';
+    final titleList = ['食材', '数量', '買った日'];
+    final rowList = [
+      ['にんじん', '3', 'きのう'],
+      ['ぶたにく', '150', 'おととい'],
+    ];
+
     return Scaffold(
-      body: Text('ようこそ ${user?.name}'),
+      body: Center(
+        child: Column(
+          children: [
+            const Text('今日のこんだて: $foodName'),
+            DataTable(
+              columns: titleList
+                  .map((title) =>
+                      DataColumn(label: Flexible(child: Text(title))))
+                  .toList(),
+              rows: rowList
+                  .map((row) => DataRow(
+                        cells: row.map((data) => DataCell(Text(data))).toList(),
+                      ))
+                  .toList(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(onPressed: () {}, child: const Text('買った')),
+                TextButton(onPressed: () {}, child: const Text('作った')),
+                TextButton(onPressed: () {}, child: const Text('考える')),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
