@@ -1,12 +1,23 @@
+import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/model/user_controller.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final rowList = [
-  ['にんじん', '3', 'きのう'],
-  ['ぶたにく', '150', 'おととい'],
-  ['たまねぎ', '10', 'きょう'],
+  Ingredient()
+    ..name = 'にんじん'
+    ..amount = 3
+    ..registerDate = Int64(0),
+  Ingredient()
+    ..name = 'ぶたにく'
+    ..amount = 150
+    ..registerDate = Int64(1),
+  Ingredient()
+    ..name = 'たまねぎ'
+    ..amount = 10
+    ..registerDate = Int64(2),
 ];
 
 class HomePage extends HookConsumerWidget {
@@ -30,9 +41,15 @@ class HomePage extends HookConsumerWidget {
                       DataColumn(label: Flexible(child: Text(title))))
                   .toList(),
               rows: rowList
-                  .map((row) => DataRow(
-                        cells: row.map((data) => DataCell(Text(data))).toList(),
-                      ))
+                  .map(
+                    (row) => DataRow(
+                      cells: [
+                        row.name,
+                        row.amount.toString(),
+                        row.registerDate.toString()
+                      ].map(((data) => DataCell(Text(data)))).toList(),
+                    ),
+                  )
                   .toList(),
             ),
             Row(
