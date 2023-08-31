@@ -1,3 +1,4 @@
+import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/pages/home_page.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
 import 'package:banmeshi_flutter/widget/ingredient_form.dart';
@@ -23,7 +24,7 @@ class RecipePage extends HookConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                child: DragTarget<List<String>>(
+                child: DragTarget<Ingredient>(
                   builder: (context, candidateData, rejectedData) {
                     return ListView(
                       shrinkWrap: true,
@@ -46,14 +47,12 @@ class RecipePage extends HookConsumerWidget {
                   },
                   // 新しい食材だけ追加する
                   onWillAccept: (data) =>
-                      forms.value.every((form) => form.name != data?[0]),
+                      forms.value.every((form) => form.name != data?.name),
                   onAccept: (data) {
                     forms.value = [
                       IngredientForm(
-                        name: data[0],
-                        amount: int.parse(
-                          data[1],
-                        ),
+                        name: data.name,
+                        amount: data.amount.toInt(),
                       ),
                       ...forms.value,
                     ];
