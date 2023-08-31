@@ -1,6 +1,13 @@
 import 'package:banmeshi_flutter/model/user_controller.dart';
+import 'package:banmeshi_flutter/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+final rowList = [
+  ['にんじん', '3', 'きのう'],
+  ['ぶたにく', '150', 'おととい'],
+  ['たまねぎ', '10', 'きょう'],
+];
 
 class HomePage extends HookConsumerWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,10 +18,6 @@ class HomePage extends HookConsumerWidget {
 
     const foodName = 'カレー';
     final titleList = ['食材', '数量', '買った日'];
-    final rowList = [
-      ['にんじん', '3', 'きのう'],
-      ['ぶたにく', '150', 'おととい'],
-    ];
 
     return Scaffold(
       body: Center(
@@ -35,9 +38,24 @@ class HomePage extends HookConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(onPressed: () {}, child: const Text('買った')),
-                TextButton(onPressed: () {}, child: const Text('作った')),
-                TextButton(onPressed: () {}, child: const Text('考える')),
+                TextButton(
+                  onPressed: () {
+                    ref.read(appRouterProvider).go('/register');
+                  },
+                  child: const Text('買った'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    ref.read(appRouterProvider).go('/recipe');
+                  },
+                  child: const Text('作った'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    ref.read(appRouterProvider).go('/recommend');
+                  },
+                  child: const Text('考える'),
+                ),
               ],
             ),
           ],
