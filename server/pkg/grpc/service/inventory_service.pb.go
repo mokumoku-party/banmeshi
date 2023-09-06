@@ -4,9 +4,10 @@
 // 	protoc        (unknown)
 // source: service/inventory_service.proto
 
-package grpc
+package service
 
 import (
+	grpc "github.com/mokumoku-party/banmeshi/server/pkg/grpc"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -25,7 +26,7 @@ type Inventory struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Ingredients []*Ingredient `protobuf:"bytes,1,rep,name=ingredients,proto3" json:"ingredients,omitempty"`
+	Ingredients []*grpc.Ingredient `protobuf:"bytes,1,rep,name=ingredients,proto3" json:"ingredients,omitempty"`
 }
 
 func (x *Inventory) Reset() {
@@ -60,7 +61,7 @@ func (*Inventory) Descriptor() ([]byte, []int) {
 	return file_service_inventory_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Inventory) GetIngredients() []*Ingredient {
+func (x *Inventory) GetIngredients() []*grpc.Ingredient {
 	if x != nil {
 		return x.Ingredients
 	}
@@ -72,8 +73,8 @@ type Item struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	User       *User       `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	Ingredient *Ingredient `protobuf:"bytes,2,opt,name=ingredient,proto3" json:"ingredient,omitempty"`
+	User       *grpc.User       `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	Ingredient *grpc.Ingredient `protobuf:"bytes,2,opt,name=ingredient,proto3" json:"ingredient,omitempty"`
 }
 
 func (x *Item) Reset() {
@@ -108,14 +109,14 @@ func (*Item) Descriptor() ([]byte, []int) {
 	return file_service_inventory_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Item) GetUser() *User {
+func (x *Item) GetUser() *grpc.User {
 	if x != nil {
 		return x.User
 	}
 	return nil
 }
 
-func (x *Item) GetIngredient() *Ingredient {
+func (x *Item) GetIngredient() *grpc.Ingredient {
 	if x != nil {
 		return x.Ingredient
 	}
@@ -144,8 +145,11 @@ var file_service_inventory_service_proto_rawDesc = []byte{
 	0x55, 0x73, 0x65, 0x72, 0x1a, 0x0a, 0x2e, 0x49, 0x6e, 0x76, 0x65, 0x6e, 0x74, 0x6f, 0x72, 0x79,
 	0x22, 0x00, 0x12, 0x1e, 0x0a, 0x0c, 0x41, 0x64, 0x64, 0x49, 0x6e, 0x76, 0x65, 0x6e, 0x74, 0x6f,
 	0x72, 0x79, 0x12, 0x05, 0x2e, 0x49, 0x74, 0x65, 0x6d, 0x1a, 0x05, 0x2e, 0x56, 0x6f, 0x69, 0x64,
-	0x22, 0x00, 0x42, 0x11, 0x5a, 0x0f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x70, 0x6b, 0x67,
-	0x2f, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0x00, 0x42, 0x3c, 0x5a, 0x3a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
+	0x2f, 0x6d, 0x6f, 0x6b, 0x75, 0x6d, 0x6f, 0x6b, 0x75, 0x2d, 0x70, 0x61, 0x72, 0x74, 0x79, 0x2f,
+	0x62, 0x61, 0x6e, 0x6d, 0x65, 0x73, 0x68, 0x69, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f,
+	0x70, 0x6b, 0x67, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -162,11 +166,11 @@ func file_service_inventory_service_proto_rawDescGZIP() []byte {
 
 var file_service_inventory_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_service_inventory_service_proto_goTypes = []interface{}{
-	(*Inventory)(nil),  // 0: Inventory
-	(*Item)(nil),       // 1: Item
-	(*Ingredient)(nil), // 2: Ingredient
-	(*User)(nil),       // 3: User
-	(*Void)(nil),       // 4: Void
+	(*Inventory)(nil),       // 0: Inventory
+	(*Item)(nil),            // 1: Item
+	(*grpc.Ingredient)(nil), // 2: Ingredient
+	(*grpc.User)(nil),       // 3: User
+	(*grpc.Void)(nil),       // 4: Void
 }
 var file_service_inventory_service_proto_depIdxs = []int32{
 	2, // 0: Inventory.ingredients:type_name -> Ingredient
@@ -188,9 +192,6 @@ func file_service_inventory_service_proto_init() {
 	if File_service_inventory_service_proto != nil {
 		return
 	}
-	file_user_proto_init()
-	file_ingredient_proto_init()
-	file_void_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_service_inventory_service_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Inventory); i {

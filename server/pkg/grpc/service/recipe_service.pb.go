@@ -4,9 +4,10 @@
 // 	protoc        (unknown)
 // source: service/recipe_service.proto
 
-package grpc
+package service
 
 import (
+	grpc "github.com/mokumoku-party/banmeshi/server/pkg/grpc"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -25,7 +26,7 @@ type RecommendFood struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	RecommendFoods []*Food `protobuf:"bytes,1,rep,name=recommend_foods,json=recommendFoods,proto3" json:"recommend_foods,omitempty"`
+	RecommendFoods []*grpc.Food `protobuf:"bytes,1,rep,name=recommend_foods,json=recommendFoods,proto3" json:"recommend_foods,omitempty"`
 }
 
 func (x *RecommendFood) Reset() {
@@ -60,7 +61,7 @@ func (*RecommendFood) Descriptor() ([]byte, []int) {
 	return file_service_recipe_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RecommendFood) GetRecommendFoods() []*Food {
+func (x *RecommendFood) GetRecommendFoods() []*grpc.Food {
 	if x != nil {
 		return x.RecommendFoods
 	}
@@ -72,8 +73,8 @@ type Recipe struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	User *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	Food *Food `protobuf:"bytes,2,opt,name=food,proto3" json:"food,omitempty"`
+	User *grpc.User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	Food *grpc.Food `protobuf:"bytes,2,opt,name=food,proto3" json:"food,omitempty"`
 }
 
 func (x *Recipe) Reset() {
@@ -108,14 +109,14 @@ func (*Recipe) Descriptor() ([]byte, []int) {
 	return file_service_recipe_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Recipe) GetUser() *User {
+func (x *Recipe) GetUser() *grpc.User {
 	if x != nil {
 		return x.User
 	}
 	return nil
 }
 
-func (x *Recipe) GetFood() *Food {
+func (x *Recipe) GetFood() *grpc.Food {
 	if x != nil {
 		return x.Food
 	}
@@ -147,9 +148,12 @@ var file_service_recipe_service_proto_rawDesc = []byte{
 	0x65, 0x63, 0x69, 0x70, 0x65, 0x1a, 0x05, 0x2e, 0x56, 0x6f, 0x69, 0x64, 0x22, 0x00, 0x12, 0x2d,
 	0x0a, 0x14, 0x46, 0x65, 0x74, 0x63, 0x68, 0x52, 0x65, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x64,
 	0x52, 0x65, 0x63, 0x69, 0x70, 0x65, 0x12, 0x05, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x1a, 0x0e, 0x2e,
-	0x52, 0x65, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x64, 0x46, 0x6f, 0x6f, 0x64, 0x42, 0x11, 0x5a,
-	0x0f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x67, 0x72, 0x70, 0x63,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x65, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x64, 0x46, 0x6f, 0x6f, 0x64, 0x42, 0x3c, 0x5a,
+	0x3a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x6f, 0x6b, 0x75,
+	0x6d, 0x6f, 0x6b, 0x75, 0x2d, 0x70, 0x61, 0x72, 0x74, 0x79, 0x2f, 0x62, 0x61, 0x6e, 0x6d, 0x65,
+	0x73, 0x68, 0x69, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x67,
+	0x72, 0x70, 0x63, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -168,9 +172,9 @@ var file_service_recipe_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2
 var file_service_recipe_service_proto_goTypes = []interface{}{
 	(*RecommendFood)(nil), // 0: RecommendFood
 	(*Recipe)(nil),        // 1: Recipe
-	(*Food)(nil),          // 2: Food
-	(*User)(nil),          // 3: User
-	(*Void)(nil),          // 4: Void
+	(*grpc.Food)(nil),     // 2: Food
+	(*grpc.User)(nil),     // 3: User
+	(*grpc.Void)(nil),     // 4: Void
 }
 var file_service_recipe_service_proto_depIdxs = []int32{
 	2, // 0: RecommendFood.recommend_foods:type_name -> Food
@@ -196,9 +200,6 @@ func file_service_recipe_service_proto_init() {
 	if File_service_recipe_service_proto != nil {
 		return
 	}
-	file_user_proto_init()
-	file_food_proto_init()
-	file_void_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_service_recipe_service_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*RecommendFood); i {

@@ -2,14 +2,15 @@
 //
 // Source: service/recipe_service.proto
 
-package grpcconnect
+package serviceconnect
 
 import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
+	grpc "github.com/mokumoku-party/banmeshi/server/pkg/grpc"
+	service "github.com/mokumoku-party/banmeshi/server/pkg/grpc/service"
 	http "net/http"
-	grpc "server/pkg/grpc"
 	strings "strings"
 )
 
@@ -52,11 +53,11 @@ type RecipeServiceClient interface {
 	// ユーザが作る予定のレシピを取得
 	FetchRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.Food], error)
 	// ユーザが作るレシピを設定
-	SelectRecipe(context.Context, *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error)
+	SelectRecipe(context.Context, *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error)
 	// 作った料理をレシピとして登録
-	RegisterFoodAsRecipe(context.Context, *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error)
+	RegisterFoodAsRecipe(context.Context, *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error)
 	// レシピのリコメンドを取得
-	FetchRecommendRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.RecommendFood], error)
+	FetchRecommendRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[service.RecommendFood], error)
 }
 
 // NewRecipeServiceClient constructs a client for the RecipeService service. By default, it uses the
@@ -74,17 +75,17 @@ func NewRecipeServiceClient(httpClient connect_go.HTTPClient, baseURL string, op
 			baseURL+RecipeServiceFetchRecipeProcedure,
 			opts...,
 		),
-		selectRecipe: connect_go.NewClient[grpc.Recipe, grpc.Void](
+		selectRecipe: connect_go.NewClient[service.Recipe, grpc.Void](
 			httpClient,
 			baseURL+RecipeServiceSelectRecipeProcedure,
 			opts...,
 		),
-		registerFoodAsRecipe: connect_go.NewClient[grpc.Recipe, grpc.Void](
+		registerFoodAsRecipe: connect_go.NewClient[service.Recipe, grpc.Void](
 			httpClient,
 			baseURL+RecipeServiceRegisterFoodAsRecipeProcedure,
 			opts...,
 		),
-		fetchRecommendRecipe: connect_go.NewClient[grpc.User, grpc.RecommendFood](
+		fetchRecommendRecipe: connect_go.NewClient[grpc.User, service.RecommendFood](
 			httpClient,
 			baseURL+RecipeServiceFetchRecommendRecipeProcedure,
 			opts...,
@@ -95,9 +96,9 @@ func NewRecipeServiceClient(httpClient connect_go.HTTPClient, baseURL string, op
 // recipeServiceClient implements RecipeServiceClient.
 type recipeServiceClient struct {
 	fetchRecipe          *connect_go.Client[grpc.User, grpc.Food]
-	selectRecipe         *connect_go.Client[grpc.Recipe, grpc.Void]
-	registerFoodAsRecipe *connect_go.Client[grpc.Recipe, grpc.Void]
-	fetchRecommendRecipe *connect_go.Client[grpc.User, grpc.RecommendFood]
+	selectRecipe         *connect_go.Client[service.Recipe, grpc.Void]
+	registerFoodAsRecipe *connect_go.Client[service.Recipe, grpc.Void]
+	fetchRecommendRecipe *connect_go.Client[grpc.User, service.RecommendFood]
 }
 
 // FetchRecipe calls RecipeService.FetchRecipe.
@@ -106,17 +107,17 @@ func (c *recipeServiceClient) FetchRecipe(ctx context.Context, req *connect_go.R
 }
 
 // SelectRecipe calls RecipeService.SelectRecipe.
-func (c *recipeServiceClient) SelectRecipe(ctx context.Context, req *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error) {
+func (c *recipeServiceClient) SelectRecipe(ctx context.Context, req *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error) {
 	return c.selectRecipe.CallUnary(ctx, req)
 }
 
 // RegisterFoodAsRecipe calls RecipeService.RegisterFoodAsRecipe.
-func (c *recipeServiceClient) RegisterFoodAsRecipe(ctx context.Context, req *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error) {
+func (c *recipeServiceClient) RegisterFoodAsRecipe(ctx context.Context, req *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error) {
 	return c.registerFoodAsRecipe.CallUnary(ctx, req)
 }
 
 // FetchRecommendRecipe calls RecipeService.FetchRecommendRecipe.
-func (c *recipeServiceClient) FetchRecommendRecipe(ctx context.Context, req *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.RecommendFood], error) {
+func (c *recipeServiceClient) FetchRecommendRecipe(ctx context.Context, req *connect_go.Request[grpc.User]) (*connect_go.Response[service.RecommendFood], error) {
 	return c.fetchRecommendRecipe.CallUnary(ctx, req)
 }
 
@@ -125,11 +126,11 @@ type RecipeServiceHandler interface {
 	// ユーザが作る予定のレシピを取得
 	FetchRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.Food], error)
 	// ユーザが作るレシピを設定
-	SelectRecipe(context.Context, *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error)
+	SelectRecipe(context.Context, *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error)
 	// 作った料理をレシピとして登録
-	RegisterFoodAsRecipe(context.Context, *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error)
+	RegisterFoodAsRecipe(context.Context, *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error)
 	// レシピのリコメンドを取得
-	FetchRecommendRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.RecommendFood], error)
+	FetchRecommendRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[service.RecommendFood], error)
 }
 
 // NewRecipeServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -181,14 +182,14 @@ func (UnimplementedRecipeServiceHandler) FetchRecipe(context.Context, *connect_g
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("RecipeService.FetchRecipe is not implemented"))
 }
 
-func (UnimplementedRecipeServiceHandler) SelectRecipe(context.Context, *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error) {
+func (UnimplementedRecipeServiceHandler) SelectRecipe(context.Context, *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("RecipeService.SelectRecipe is not implemented"))
 }
 
-func (UnimplementedRecipeServiceHandler) RegisterFoodAsRecipe(context.Context, *connect_go.Request[grpc.Recipe]) (*connect_go.Response[grpc.Void], error) {
+func (UnimplementedRecipeServiceHandler) RegisterFoodAsRecipe(context.Context, *connect_go.Request[service.Recipe]) (*connect_go.Response[grpc.Void], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("RecipeService.RegisterFoodAsRecipe is not implemented"))
 }
 
-func (UnimplementedRecipeServiceHandler) FetchRecommendRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.RecommendFood], error) {
+func (UnimplementedRecipeServiceHandler) FetchRecommendRecipe(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[service.RecommendFood], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("RecipeService.FetchRecommendRecipe is not implemented"))
 }

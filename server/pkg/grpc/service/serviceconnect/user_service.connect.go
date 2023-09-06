@@ -2,14 +2,15 @@
 //
 // Source: service/user_service.proto
 
-package grpcconnect
+package serviceconnect
 
 import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
+	grpc "github.com/mokumoku-party/banmeshi/server/pkg/grpc"
+	_ "github.com/mokumoku-party/banmeshi/server/pkg/grpc/service"
 	http "net/http"
-	grpc "server/pkg/grpc"
 	strings "strings"
 )
 

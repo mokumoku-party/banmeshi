@@ -2,14 +2,15 @@
 //
 // Source: service/inventory_service.proto
 
-package grpcconnect
+package serviceconnect
 
 import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
+	grpc "github.com/mokumoku-party/banmeshi/server/pkg/grpc"
+	service "github.com/mokumoku-party/banmeshi/server/pkg/grpc/service"
 	http "net/http"
-	grpc "server/pkg/grpc"
 	strings "strings"
 )
 
@@ -44,9 +45,9 @@ const (
 // InventoryServiceClient is a client for the InventoryService service.
 type InventoryServiceClient interface {
 	// ユーザの在庫を取得
-	FetchInventory(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.Inventory], error)
+	FetchInventory(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[service.Inventory], error)
 	// ユーザの在庫に食材を追加
-	AddInventory(context.Context, *connect_go.Request[grpc.Item]) (*connect_go.Response[grpc.Void], error)
+	AddInventory(context.Context, *connect_go.Request[service.Item]) (*connect_go.Response[grpc.Void], error)
 }
 
 // NewInventoryServiceClient constructs a client for the InventoryService service. By default, it
@@ -59,12 +60,12 @@ type InventoryServiceClient interface {
 func NewInventoryServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) InventoryServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &inventoryServiceClient{
-		fetchInventory: connect_go.NewClient[grpc.User, grpc.Inventory](
+		fetchInventory: connect_go.NewClient[grpc.User, service.Inventory](
 			httpClient,
 			baseURL+InventoryServiceFetchInventoryProcedure,
 			opts...,
 		),
-		addInventory: connect_go.NewClient[grpc.Item, grpc.Void](
+		addInventory: connect_go.NewClient[service.Item, grpc.Void](
 			httpClient,
 			baseURL+InventoryServiceAddInventoryProcedure,
 			opts...,
@@ -74,26 +75,26 @@ func NewInventoryServiceClient(httpClient connect_go.HTTPClient, baseURL string,
 
 // inventoryServiceClient implements InventoryServiceClient.
 type inventoryServiceClient struct {
-	fetchInventory *connect_go.Client[grpc.User, grpc.Inventory]
-	addInventory   *connect_go.Client[grpc.Item, grpc.Void]
+	fetchInventory *connect_go.Client[grpc.User, service.Inventory]
+	addInventory   *connect_go.Client[service.Item, grpc.Void]
 }
 
 // FetchInventory calls InventoryService.FetchInventory.
-func (c *inventoryServiceClient) FetchInventory(ctx context.Context, req *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.Inventory], error) {
+func (c *inventoryServiceClient) FetchInventory(ctx context.Context, req *connect_go.Request[grpc.User]) (*connect_go.Response[service.Inventory], error) {
 	return c.fetchInventory.CallUnary(ctx, req)
 }
 
 // AddInventory calls InventoryService.AddInventory.
-func (c *inventoryServiceClient) AddInventory(ctx context.Context, req *connect_go.Request[grpc.Item]) (*connect_go.Response[grpc.Void], error) {
+func (c *inventoryServiceClient) AddInventory(ctx context.Context, req *connect_go.Request[service.Item]) (*connect_go.Response[grpc.Void], error) {
 	return c.addInventory.CallUnary(ctx, req)
 }
 
 // InventoryServiceHandler is an implementation of the InventoryService service.
 type InventoryServiceHandler interface {
 	// ユーザの在庫を取得
-	FetchInventory(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.Inventory], error)
+	FetchInventory(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[service.Inventory], error)
 	// ユーザの在庫に食材を追加
-	AddInventory(context.Context, *connect_go.Request[grpc.Item]) (*connect_go.Response[grpc.Void], error)
+	AddInventory(context.Context, *connect_go.Request[service.Item]) (*connect_go.Response[grpc.Void], error)
 }
 
 // NewInventoryServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -127,10 +128,10 @@ func NewInventoryServiceHandler(svc InventoryServiceHandler, opts ...connect_go.
 // UnimplementedInventoryServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedInventoryServiceHandler struct{}
 
-func (UnimplementedInventoryServiceHandler) FetchInventory(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[grpc.Inventory], error) {
+func (UnimplementedInventoryServiceHandler) FetchInventory(context.Context, *connect_go.Request[grpc.User]) (*connect_go.Response[service.Inventory], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("InventoryService.FetchInventory is not implemented"))
 }
 
-func (UnimplementedInventoryServiceHandler) AddInventory(context.Context, *connect_go.Request[grpc.Item]) (*connect_go.Response[grpc.Void], error) {
+func (UnimplementedInventoryServiceHandler) AddInventory(context.Context, *connect_go.Request[service.Item]) (*connect_go.Response[grpc.Void], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("InventoryService.AddInventory is not implemented"))
 }
