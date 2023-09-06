@@ -3,7 +3,7 @@ syntax = "proto3";
 import "user.proto";
 import "void.proto";
 
-option go_package = "server/pkg/grpc";
+option go_package = "github.com/mokumoku-party/banmeshi/server/pkg/grpc/service";
 
 // ユーザ情報を管理する
 service UserService {
