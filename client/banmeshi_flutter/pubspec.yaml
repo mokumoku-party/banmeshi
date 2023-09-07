@@ -1,0 +1,27 @@
+name: banmeshi_flutter
+description: Banmeshi App client
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.5 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  protobuf: ^3.0.0
+  go_router: ^9.1.0
+  hooks_riverpod: ^2.3.6
+  grpc: ^3.2.3
+  flutter_hooks: ^0.18.6
+  fixnum: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
