@@ -113,7 +113,7 @@ func NewInventoryServiceHandler(svc InventoryServiceHandler, opts ...connect_go.
 		svc.AddInventory,
 		opts...,
 	)
-	return "/.InventoryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/InventoryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case InventoryServiceFetchInventoryProcedure:
 			inventoryServiceFetchInventoryHandler.ServeHTTP(w, r)
