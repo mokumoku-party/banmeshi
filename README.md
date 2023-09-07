@@ -4,19 +4,22 @@
 
 ## protoからコード生成
 
-```
-protoc \
-    --dart_out=./client/lib/gen/proto \
-    -I ./proto/ ./proto/*.proto
-```
-
 ### Go
+
 プロジェクト直下で以下のコマンドを実行
 ```
 buf generate
 ```
 
 ### Dart
+
+プロジェクト直下でコマンドを実行
+
+```
+protoc \
+  --dart_out=grpc:./client/banmeshi_flutter/lib/gen/proto \
+  -I ./proto/ ./proto/*.proto
+```
 
 ## 資料
 
