@@ -1,24 +1,9 @@
-import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
+import 'package:banmeshi_flutter/model/inventory_controller.dart';
 import 'package:banmeshi_flutter/model/user_controller.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-final rowList = [
-  Ingredient()
-    ..name = 'にんじん'
-    ..amount = 3
-    ..registerDate = Int64(0),
-  Ingredient()
-    ..name = 'ぶたにく'
-    ..amount = 150
-    ..registerDate = Int64(1),
-  Ingredient()
-    ..name = 'たまねぎ'
-    ..amount = 10
-    ..registerDate = Int64(2),
-];
 
 class HomePage extends HookConsumerWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -26,6 +11,13 @@ class HomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
+    final inventory = ref.watch(inventoryProvider.select((v) => v.ingredients));
+    print(inventory);
+
+    useEffect(() {
+      ref.read(inventoryProvider.notifier).fetch();
+      return;
+    }, [user]);
 
     const foodName = 'カレー';
     final titleList = ['食材', '数量', '買った日'];
@@ -34,13 +26,13 @@ class HomePage extends HookConsumerWidget {
       body: Center(
         child: Column(
           children: [
-            const Text('今日のこんだて: $foodName'),
+            Text('${user?.name ?? '今日'}のこんだて: $foodName'),
             DataTable(
               columns: titleList
                   .map((title) =>
                       DataColumn(label: Flexible(child: Text(title))))
                   .toList(),
-              rows: rowList
+              rows: inventory
                   .map(
                     (row) => DataRow(
                       cells: [

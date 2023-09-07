@@ -1,5 +1,5 @@
 import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
-import 'package:banmeshi_flutter/pages/home_page.dart';
+import 'package:banmeshi_flutter/model/inventory_controller.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
 import 'package:banmeshi_flutter/widget/ingredient_form.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,13 @@ class RecipePage extends HookConsumerWidget {
     final forms = useState([
       const IngredientForm(),
     ]);
+
+    final inventory = ref.watch(inventoryProvider.select((v) => v.ingredients));
+
+    useEffect(() {
+      ref.read(inventoryProvider.notifier).fetch();
+      return;
+    }, const []);
 
     return Scaffold(
       body: Center(
@@ -80,7 +87,7 @@ class RecipePage extends HookConsumerWidget {
                     ),
                     Flexible(
                       child: ListView(
-                        children: rowList.map(
+                        children: inventory.map(
                           (row) {
                             final card = Card(
                               child: Padding(
