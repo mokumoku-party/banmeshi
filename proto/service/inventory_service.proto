@@ -4,7 +4,7 @@ import "user.proto";
 import "ingredient.proto";
 import "void.proto";
 
-option go_package = "server/pkg/grpc";
+option go_package = "github.com/mokumoku-party/banmeshi/server/pkg/grpc/service";
 
 message Inventory { repeated Ingredient ingredients = 1; }
 

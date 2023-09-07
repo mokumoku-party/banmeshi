@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "ingredient.proto";
 
-option go_package = "server/pkg/grpc";
+option go_package = "github.com/mokumoku-party/banmeshi/server/pkg/grpc";
 
 // 料理
 message Food {

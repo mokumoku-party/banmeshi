@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "server/pkg/grpc";
+option go_package = "github.com/mokumoku-party/banmeshi/server/pkg/grpc";
 
 // 空データ
 // protobufにvoidがないため定義している
