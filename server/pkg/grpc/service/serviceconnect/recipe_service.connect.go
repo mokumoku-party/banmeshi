@@ -159,7 +159,7 @@ func NewRecipeServiceHandler(svc RecipeServiceHandler, opts ...connect_go.Handle
 		svc.FetchRecommendRecipe,
 		opts...,
 	)
-	return "/.RecipeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/RecipeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case RecipeServiceFetchRecipeProcedure:
 			recipeServiceFetchRecipeHandler.ServeHTTP(w, r)
