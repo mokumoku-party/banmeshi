@@ -96,7 +96,7 @@ func main() {
 	path, handler = serviceconnect.NewRecipeServiceHandler(recipeServer)
 	mux.Handle(path, handler)
 	http.ListenAndServe(
-		"localhost:8080",
+		":8080",
 		h2c.NewHandler(mux, &http2.Server{}),
 	)
 }
