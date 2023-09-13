@@ -1,0 +1,14 @@
+syntax="proto3";
+
+import "void.proto";
+
+option go_package = "github.com/mokumoku-party/banmeshi/server/pkg/grpc/service";
+
+message Status {
+    string status = 1;
+}
+
+service helthcheck{
+    // データベースとの接続状況を確認する
+    rpc checkDatabaseStatus(Void) returns (Status) {}
+}

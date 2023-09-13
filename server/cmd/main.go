@@ -6,19 +6,27 @@ import (
 	"context"
 	"fmt"
 
+	"database/sql"
+
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
 	"github.com/bufbuild/connect-go"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc"
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc/service"
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc/service/serviceconnect"
 )
 
+var db *sql.DB
+
 type InventoryServer struct{}
 
 type RecipeServer struct{}
+
+type HcServer struct{}
 
 func (s *InventoryServer) FetchInventory(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.Inventory], error) {
 	resArray := []*grpc.Ingredient{}
@@ -87,13 +95,37 @@ func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Re
 	return res, nil
 }
 
+func (s *HcServer) CheckDatabaseStatus(ctx context.Context, req *connect.Request[grpc.Void]) (*connect.Response[service.Status], error) {
+	err := db.Ping()
+	if err != nil {
+		return connect.NewResponse(&service.Status{Status: "disconnect"}), nil
+	} else {
+		return connect.NewResponse(&service.Status{Status: "ok!"}), nil
+	}
+}
+
 func main() {
+
+	var err error
+	// ローカルで試すときはホスト名を変えること
+	db, err = sql.Open("mysql", "root:password@(mysql:3306)/banmeshi")
+
+	defer db.Close()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	inventoryServer := &InventoryServer{}
 	recipeServer := &RecipeServer{}
+	hcServer := &HcServer{}
 	mux := http.NewServeMux()
 	path, handler := serviceconnect.NewInventoryServiceHandler(inventoryServer)
 	mux.Handle(path, handler)
 	path, handler = serviceconnect.NewRecipeServiceHandler(recipeServer)
+	mux.Handle(path, handler)
+	path, handler = serviceconnect.NewHelthcheckHandler(hcServer)
 	mux.Handle(path, handler)
 	http.ListenAndServe(
 		":8080",
