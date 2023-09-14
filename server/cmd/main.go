@@ -3,12 +3,11 @@ package main
 import (
 	"net/http"
 
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
-	"fmt"
 	"context"
+	"fmt"
 
 	"github.com/bufbuild/connect-go"
+	"github.com/rs/cors"
 
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc"
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc/service"
@@ -96,8 +95,15 @@ func main() {
 	mux.Handle(path, handler)
 	path, handler = serviceconnect.NewRecipeServiceHandler(recipeServer)
 	mux.Handle(path, handler)
+	
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:*"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"Content-Type", "X-Grpc-Web", "X-User-Agent"},
+	}).Handler(mux)
+
 	http.ListenAndServe(
 		"localhost:8080",
-		h2c.NewHandler(mux, &http2.Server{}),
+		corsHandler,
 	)
 }
