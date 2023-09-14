@@ -8,10 +8,8 @@ import (
 
 	"database/sql"
 
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
-
 	"github.com/bufbuild/connect-go"
+	"github.com/rs/cors"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -127,8 +125,15 @@ func main() {
 	mux.Handle(path, handler)
 	path, handler = serviceconnect.NewHelthcheckHandler(hcServer)
 	mux.Handle(path, handler)
+
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:*"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"Content-Type", "X-Grpc-Web", "X-User-Agent"},
+	}).Handler(mux)
+
 	http.ListenAndServe(
-		":8080",
-		h2c.NewHandler(mux, &http2.Server{}),
+		"localhost:8080",
+		corsHandler,
 	)
 }
