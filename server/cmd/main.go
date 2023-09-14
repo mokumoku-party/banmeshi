@@ -133,7 +133,7 @@ func main() {
 	}).Handler(mux)
 
 	http.ListenAndServe(
-		"localhost:8080",
+		":8080",
 		corsHandler,
 	)
 }
