@@ -6,96 +6,126 @@ import (
 	"context"
 	"fmt"
 
+	"database/sql"
+
 	"github.com/bufbuild/connect-go"
 	"github.com/rs/cors"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc"
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc/service"
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc/service/serviceconnect"
 )
 
-type InventoryServer struct {}
+var db *sql.DB
 
-type RecipeServer struct {}
+type InventoryServer struct{}
 
+type RecipeServer struct{}
 
-func (s *InventoryServer) FetchInventory (ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.Inventory], error) {
+type HcServer struct{}
+
+func (s *InventoryServer) FetchInventory(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.Inventory], error) {
 	resArray := []*grpc.Ingredient{}
 	resStruct := &grpc.Ingredient{
-		Name:fmt.Sprintf("hoge"),
-		Amount:1,
-		Unit:0,
-		RegisterDate:0,
+		Name:         fmt.Sprintf("hoge"),
+		Amount:       1,
+		Unit:         0,
+		RegisterDate: 0,
 	}
-	resArray = append(resArray,resStruct)
-	res := connect.NewResponse(&service.Inventory{Ingredients: resArray,
-    })
-	return res,nil
+	resArray = append(resArray, resStruct)
+	res := connect.NewResponse(&service.Inventory{Ingredients: resArray})
+	return res, nil
 }
 
-func (s *InventoryServer) AddInventory (ctx context.Context, req *connect.Request[service.Item]) (*connect.Response[grpc.Void], error){
+func (s *InventoryServer) AddInventory(ctx context.Context, req *connect.Request[service.Item]) (*connect.Response[grpc.Void], error) {
 	res := connect.NewResponse(&grpc.Void{})
-	return res,nil
+	return res, nil
 }
 
-func (s *RecipeServer) FetchRecipe (ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[grpc.Food],error){
+func (s *RecipeServer) FetchRecipe(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[grpc.Food], error) {
 	resArray := []*grpc.Ingredient{}
 	resStruct := &grpc.Ingredient{
-		Name:fmt.Sprintf("hoge"),
-		Amount:1,
-		Unit:0,
-		RegisterDate:0,
+		Name:         fmt.Sprintf("hoge"),
+		Amount:       1,
+		Unit:         0,
+		RegisterDate: 0,
 	}
-	resArray = append(resArray,resStruct)
+	resArray = append(resArray, resStruct)
 	res := connect.NewResponse(&grpc.Food{
-		Name: fmt.Sprintf("sample_recipe_name"),
-		Serving: 1,
-		Ingredient: resArray,
+		Name:         fmt.Sprintf("sample_recipe_name"),
+		Serving:      1,
+		Ingredient:   resArray,
 		ReferenceUrl: "hogehoge.com",
-		})
-	return res,nil
+	})
+	return res, nil
 }
 
-func (s *RecipeServer) SelectRecipe (ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void],error){
+func (s *RecipeServer) SelectRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
 	res := connect.NewResponse(&grpc.Void{})
 	return res, nil
 }
 
-func (s *RecipeServer) RegisterFoodAsRecipe (ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error){
+func (s *RecipeServer) RegisterFoodAsRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
 	res := connect.NewResponse(&grpc.Void{})
 	return res, nil
 }
 
-func (s *RecipeServer) FetchRecommendRecipe (ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.RecommendFood], error){
+func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.RecommendFood], error) {
 	resArray := []*grpc.Ingredient{}
 	resStruct := &grpc.Ingredient{
-		Name:fmt.Sprintf("hoge"),
-		Amount:1,
-		Unit:0,
-		RegisterDate:0,
+		Name:         fmt.Sprintf("hoge"),
+		Amount:       1,
+		Unit:         0,
+		RegisterDate: 0,
 	}
-	resArray = append(resArray,resStruct)
+	resArray = append(resArray, resStruct)
 	foodArray := []*grpc.Food{}
 	food := &grpc.Food{
-		Name: fmt.Sprintf("sample_recipe_name"),
-		Serving: 1,
-		Ingredient: resArray,
+		Name:         fmt.Sprintf("sample_recipe_name"),
+		Serving:      1,
+		Ingredient:   resArray,
 		ReferenceUrl: "hogehoge.com",
 	}
-	foodArray = append(foodArray,food)
-	res := connect.NewResponse(&service.RecommendFood{ RecommendFoods: foodArray})
+	foodArray = append(foodArray, food)
+	res := connect.NewResponse(&service.RecommendFood{RecommendFoods: foodArray})
 	return res, nil
+}
+
+func (s *HcServer) CheckDatabaseStatus(ctx context.Context, req *connect.Request[grpc.Void]) (*connect.Response[service.Status], error) {
+	err := db.Ping()
+	if err != nil {
+		return connect.NewResponse(&service.Status{Status: "disconnect"}), nil
+	} else {
+		return connect.NewResponse(&service.Status{Status: "ok!"}), nil
+	}
 }
 
 func main() {
+
+	var err error
+	// ローカルで試すときはホスト名を変えること
+	db, err = sql.Open("mysql", "root:password@(mysql:3306)/banmeshi")
+
+	defer db.Close()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	inventoryServer := &InventoryServer{}
 	recipeServer := &RecipeServer{}
+	hcServer := &HcServer{}
 	mux := http.NewServeMux()
 	path, handler := serviceconnect.NewInventoryServiceHandler(inventoryServer)
 	mux.Handle(path, handler)
 	path, handler = serviceconnect.NewRecipeServiceHandler(recipeServer)
 	mux.Handle(path, handler)
-	
+	path, handler = serviceconnect.NewHelthcheckHandler(hcServer)
+	mux.Handle(path, handler)
+
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:*"},
 		AllowCredentials: true,
@@ -103,7 +133,7 @@ func main() {
 	}).Handler(mux)
 
 	http.ListenAndServe(
-		"localhost:8080",
+		":8080",
 		corsHandler,
 	)
 }
