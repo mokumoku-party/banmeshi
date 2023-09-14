@@ -1,7 +1,6 @@
-import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/gen/proto/service/inventory_service.pb.dart';
 import 'package:banmeshi_flutter/model/user_controller.dart';
-import 'package:fixnum/fixnum.dart';
+import 'package:banmeshi_flutter/repository/inventory_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final inventoryProvider = StateNotifierProvider<InventoryController, Inventory>(
@@ -16,25 +15,6 @@ class InventoryController extends StateNotifier<Inventory> {
     final user = _ref.read(userProvider);
     if (user == null) return;
 
-    // state = await _ref.read(inventoryRepositoryProvider).fetchInventory(user);
-
-    // TODO: mock
-    Future.microtask(() {
-      state = Inventory()
-        ..ingredients.addAll([
-          Ingredient()
-            ..name = 'にんじん'
-            ..amount = 3
-            ..registerDate = Int64(0),
-          Ingredient()
-            ..name = 'ぶたにく'
-            ..amount = 150
-            ..registerDate = Int64(1),
-          Ingredient()
-            ..name = 'たまねぎ'
-            ..amount = 10
-            ..registerDate = Int64(2),
-        ]);
-    });
+    state = await _ref.read(inventoryRepositoryProvider).fetchInventory(user);
   }
 }
