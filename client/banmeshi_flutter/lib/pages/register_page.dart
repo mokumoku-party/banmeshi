@@ -9,6 +9,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class RegisterPage extends HookConsumerWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
+  String relativeDateText(DateTime dateTime) {
+    final diffDays = dateTime.difference(DateTime.now()).inDays;
+
+    return switch (diffDays) {
+      (> -1 && <= 0) => '今日',
+      _ => '${diffDays.abs()}日前',
+    };
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final inventory = ref.watch(inventoryProvider.select((v) => v.ingredients));
@@ -16,16 +25,15 @@ class RegisterPage extends HookConsumerWidget {
     final nameCtrl = useTextEditingController();
     final amountCtrl = useTextEditingController();
     final unitState = useState(IngredientUnit.quantity);
-    final dateCtrl = useTextEditingController(text: '今日');
+    final dateCtrl = useState(DateTime.now());
     final canSendState = useState(false);
 
     useEffect(() {
       ref.read(inventoryProvider.notifier).fetch();
 
       updateCanSend() {
-        canSendState.value = nameCtrl.text.isNotEmpty &&
-            amountCtrl.text.isNotEmpty &&
-            dateCtrl.text.isNotEmpty;
+        canSendState.value =
+            nameCtrl.text.isNotEmpty && amountCtrl.text.isNotEmpty;
       }
 
       nameCtrl.addListener(updateCanSend);
@@ -108,10 +116,23 @@ class RegisterPage extends HookConsumerWidget {
                       ),
                       const SizedBox(width: 16),
                       Flexible(
-                        flex: 2,
-                        child: TextField(
-                          controller: dateCtrl,
-                          decoration: const InputDecoration(labelText: "日付"),
+                        flex: 3,
+                        child: TextButton(
+                          onPressed: () async {
+                            final now = DateTime.now();
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: now,
+                              firstDate: now.subtract(const Duration(days: 7)),
+                              lastDate: now,
+                            );
+                            if (picked == null) return;
+
+                            dateCtrl.value = picked;
+                          },
+                          child: Text(
+                            relativeDateText(dateCtrl.value),
+                          ),
                         ),
                       ),
                     ],
