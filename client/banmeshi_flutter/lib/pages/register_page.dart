@@ -1,20 +1,31 @@
 import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/model/inventory_controller.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+final _registeredInventoryProvider = Provider((ref) => []);
+
 class RegisterPage extends HookConsumerWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
-  String relativeDateText(DateTime dateTime) {
+  String _relativeDateText(DateTime dateTime) {
     final diffDays = dateTime.difference(DateTime.now()).inDays;
 
     return switch (diffDays) {
       (> -1 && <= 0) => '今日',
       _ => '${diffDays.abs()}日前',
+    };
+  }
+
+  String _formatUnit(IngredientUnit unit) {
+    return switch (unit) {
+      IngredientUnit.grams => 'g',
+      IngredientUnit.quantity => '個',
+      _ => '個'
     };
   }
 
@@ -27,6 +38,9 @@ class RegisterPage extends HookConsumerWidget {
     final unitState = useState(IngredientUnit.quantity);
     final dateCtrl = useState(DateTime.now());
     final canSendState = useState(false);
+
+    final initInventory = [...inventory];
+    final registerInventory = useState([...inventory]);
 
     useEffect(() {
       ref.read(inventoryProvider.notifier).fetch();
@@ -58,12 +72,13 @@ class RegisterPage extends HookConsumerWidget {
                 ),
                 Flexible(
                   child: ListView(
-                    children: inventory
+                    children: registerInventory.value
                         .map(
                           (row) => Card(
                             child: Padding(
                               padding: const EdgeInsets.all(16),
-                              child: Text('${row.name}: ${row.amount}'),
+                              child: Text(
+                                  '${row.name} : ${row.amount}${_formatUnit(row.unit)}   ${_relativeDateText(DateTime.fromMillisecondsSinceEpoch(row.registerDate.toInt()))}'),
                             ),
                           ),
                         )
@@ -131,7 +146,7 @@ class RegisterPage extends HookConsumerWidget {
                             dateCtrl.value = picked;
                           },
                           child: Text(
-                            relativeDateText(dateCtrl.value),
+                            _relativeDateText(dateCtrl.value),
                           ),
                         ),
                       ),
@@ -144,8 +159,10 @@ class RegisterPage extends HookConsumerWidget {
                           final ingredient = Ingredient()
                             ..name = nameCtrl.text
                             ..amount = double.parse(amountCtrl.text)
-                            ..unit = unitState.value;
-                          ref.read(inventoryProvider.notifier).add(ingredient);
+                            ..unit = unitState.value
+                            ..registerDate =
+                                Int64(dateCtrl.value.millisecondsSinceEpoch);
+                          registerInventory.value.add(ingredient);
 
                           nameCtrl.text = '';
                           amountCtrl.text = '';
@@ -158,6 +175,16 @@ class RegisterPage extends HookConsumerWidget {
                 ),
                 TextButton(
                   onPressed: () {
+                    // calculate diff and post data to api
+                    final diffIngredients = registerInventory.value
+                        .toSet()
+                        .difference(initInventory.toSet())
+                        .toList();
+
+                    for (var ingredient in diffIngredients) {
+                      ref.read(inventoryProvider.notifier).add(ingredient);
+                    }
+
                     ref.read(appRouterProvider).go('/');
                   },
                   child: const Padding(
