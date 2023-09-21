@@ -1,3 +1,4 @@
+import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/gen/proto/service/inventory_service.pbgrpc.dart';
 import 'package:banmeshi_flutter/gen/proto/user.pb.dart';
 import 'package:banmeshi_flutter/provider/grpc_channel_provider.dart';
@@ -18,6 +19,10 @@ class InventoryRepository {
   Future<Inventory> fetchInventory(User user) async =>
       client.fetchInventory(user);
 
-  Future<void> addInventory(User user, Item item) async =>
-      client.addInventory(item);
+  Future<void> addInventory(User user, Ingredient ingredient) async =>
+      client.addInventory(
+        Item()
+          ..user = user
+          ..ingredient = ingredient,
+      );
 }

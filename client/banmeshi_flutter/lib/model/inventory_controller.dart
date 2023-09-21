@@ -1,3 +1,4 @@
+import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/gen/proto/service/inventory_service.pb.dart';
 import 'package:banmeshi_flutter/model/user_controller.dart';
 import 'package:banmeshi_flutter/repository/inventory_repository.dart';
@@ -16,5 +17,12 @@ class InventoryController extends StateNotifier<Inventory> {
     if (user == null) return;
 
     state = await _ref.read(inventoryRepositoryProvider).fetchInventory(user);
+  }
+
+  Future<void> add(Ingredient ingredient) async {
+    final user = _ref.read(userProvider);
+    if (user == null) return;
+
+    _ref.read(inventoryRepositoryProvider).addInventory(user, ingredient);
   }
 }

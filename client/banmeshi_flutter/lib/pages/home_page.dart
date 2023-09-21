@@ -12,7 +12,6 @@ class HomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
     final inventory = ref.watch(inventoryProvider.select((v) => v.ingredients));
-    print(inventory);
 
     useEffect(() {
       ref.read(inventoryProvider.notifier).fetch();
