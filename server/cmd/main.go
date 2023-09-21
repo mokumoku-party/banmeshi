@@ -27,16 +27,34 @@ type RecipeServer struct{}
 type HcServer struct{}
 
 func (s *InventoryServer) FetchInventory(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.Inventory], error) {
-	resArray := []*grpc.Ingredient{}
-	resStruct := &grpc.Ingredient{
-		Name:         fmt.Sprintf("hoge"),
-		Amount:       1,
-		Unit:         0,
-		RegisterDate: 0,
+	rows, err := db.Query("select name, amount, unit, created_at from ingredient where user_name=?", req.Msg.Name)
+	if err != nil {
+		fmt.Println("database error on FetchInventory")
 	}
-	resArray = append(resArray, resStruct)
+	resArray := []*grpc.Ingredient{}
+
+	for rows.Next() {
+		var name, unit string
+		var amount float64
+		var created_at int64
+		_ = rows.Scan(&name, &amount, &unit, &created_at)
+
+		unitEnum := *grpc.IngredientUnit_quantity.Enum()
+		if unit == "grams" {
+			unitEnum = *grpc.IngredientUnit_grams.Enum()
+		}
+
+		resStruct := &grpc.Ingredient{
+			Name:         name,
+			Amount:       amount,
+			Unit:         unitEnum,
+			RegisterDate: created_at,
+		}
+
+		resArray = append(resArray, resStruct)
+	}
 	res := connect.NewResponse(&service.Inventory{Ingredients: resArray})
-	return res, nil
+	return res, err
 }
 
 func (s *InventoryServer) AddInventory(ctx context.Context, req *connect.Request[service.Item]) (*connect.Response[grpc.Void], error) {
@@ -106,7 +124,7 @@ func main() {
 
 	var err error
 	// ローカルで試すときはホスト名を変えること
-	db, err = sql.Open("mysql", "root:password@(mysql:3306)/banmeshi")
+	db, err = sql.Open("mysql", "root:password@(127.0.0.1:3306)/banmeshi")
 
 	defer db.Close()
 
@@ -133,7 +151,7 @@ func main() {
 	}).Handler(mux)
 
 	http.ListenAndServe(
-		":8080",
+		":8081",
 		corsHandler,
 	)
 }
