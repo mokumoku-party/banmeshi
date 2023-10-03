@@ -1,11 +1,11 @@
 name: banmeshi_flutter
 description: Banmeshi App client
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.5 <4.0.0'
+  sdk: ">=3.0.5 <4.0.0"
 
 dependencies:
   flutter:
@@ -19,11 +19,16 @@ dependencies:
   fixnum: ^1.1.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  riverpod_annotation: ^2.1.6
+  freezed_annotation: ^2.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  build_runner: ^2.4.6
+  riverpod_generator: ^2.3.2
+  freezed: ^2.4.3
 
 flutter:
   uses-material-design: true
