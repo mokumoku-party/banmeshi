@@ -1,5 +1,6 @@
 import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/model/inventory_controller.dart';
+import 'package:banmeshi_flutter/model/recipe_controller.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
 import 'package:banmeshi_flutter/widget/ingredient_form.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +12,11 @@ class RecipePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final forms = useState([
-      const IngredientForm(),
-    ]);
-
+    final ingredientCount = useState(1);
     final inventory = ref.watch(inventoryProvider.select((v) => v.ingredients));
+
+    ingredientList() => List.generate(ingredientCount.value,
+        (index) => ref.read(recipeControllerProvider(index)));
 
     useEffect(() {
       ref.read(inventoryProvider.notifier).fetch();
@@ -43,15 +44,15 @@ class RecipePage extends HookConsumerWidget {
                           child: ListView(
                             shrinkWrap: true,
                             children: [
-                              ...forms.value,
+                              ...List.generate(
+                                ingredientCount.value,
+                                (index) => IngredientForm(index),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: IconButton(
                                   onPressed: () {
-                                    forms.value = [
-                                      ...forms.value,
-                                      const IngredientForm(),
-                                    ];
+                                    ingredientCount.value++;
                                   },
                                   icon: const Icon(Icons.add),
                                 ),
@@ -61,16 +62,19 @@ class RecipePage extends HookConsumerWidget {
                         );
                       },
                       // 新しい食材だけ追加する
-                      onWillAccept: (data) =>
-                          forms.value.every((form) => form.name != data?.name),
+                      onWillAccept: (data) => ingredientList().every(
+                          (state) => state.ingredient.name != data?.name),
                       onAccept: (data) {
-                        forms.value = [
-                          IngredientForm(
-                            name: data.name,
-                            amount: data.amount.toInt(),
-                          ),
-                          ...forms.value,
-                        ];
+                        ingredientCount.value++;
+
+                        final lastIndex = ingredientCount.value - 1;
+                        final ingredient = Ingredient()
+                          ..name = data.name
+                          ..amount = data.amount;
+
+                        ref
+                            .read(recipeControllerProvider(lastIndex).notifier)
+                            .update(ingredient);
                       },
                     ),
                   ],
@@ -89,10 +93,17 @@ class RecipePage extends HookConsumerWidget {
                       child: ListView(
                         children: inventory.map(
                           (row) {
-                            final card = Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Text('${row.name}: ${row.amount}'),
+                            final isUsedIngredient = ingredientList()
+                                .map((e) => e.ingredient)
+                                .contains(row);
+
+                            final card = Opacity(
+                              opacity: isUsedIngredient ? .5 : 1,
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Text('${row.name}: ${row.amount}'),
+                                ),
                               ),
                             );
                             return Draggable(
@@ -106,6 +117,8 @@ class RecipePage extends HookConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () {
+                        // TODO: push data to server.
+
                         ref.read(appRouterProvider).go('/');
                       },
                       child: const Padding(
