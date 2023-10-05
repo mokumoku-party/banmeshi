@@ -135,7 +135,7 @@ func main() {
 
 	var err error
 	// ローカルで試すときはホスト名を変えること
-	db, err = sql.Open("mysql", "root:password@(127.0.0.1:3306)/banmeshi")
+	db, err = sql.Open("mysql", "root:password@(mysql:3306)/banmeshi")
 
 	defer db.Close()
 
@@ -162,7 +162,7 @@ func main() {
 	}).Handler(mux)
 
 	http.ListenAndServe(
-		":8081",
+		":8080",
 		corsHandler,
 	)
 }
