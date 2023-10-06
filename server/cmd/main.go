@@ -91,22 +91,57 @@ func (s *RecipeServer) RegisterFoodAsRecipe(ctx context.Context, req *connect.Re
 }
 
 func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.RecommendFood], error) {
-	resArray := []*grpc.Ingredient{}
-	resStruct := &grpc.Ingredient{
-		Name:         fmt.Sprintf("hoge"),
-		Amount:       1,
-		Unit:         0,
-		RegisterDate: 0,
+
+	// 本来は適当なアルゴリズムでリコメンドを返すべきだけど、一旦全件返すようにする
+
+	rows, err := db.Query("SELECT id, name, serving, recipe_url FROM recipe")
+
+	if err != nil {
+		fmt.Println(err)
 	}
-	resArray = append(resArray, resStruct)
+
 	foodArray := []*grpc.Food{}
-	food := &grpc.Food{
-		Name:         fmt.Sprintf("sample_recipe_name"),
-		Serving:      1,
-		Ingredient:   resArray,
-		ReferenceUrl: "hogehoge.com",
+
+	for rows.Next() {
+		var id int
+		var recipeName string
+		var serving int32
+		var referenceUrl string
+		rows.Scan(&id, &recipeName, &serving, &referenceUrl)
+
+		rowsFromIngredientTable, err := db.Query("SELECT name, amount, unit FROM ingredients_for_recipe WHERE recipe_id=?", id)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		ingredientArray := []*grpc.Ingredient{}
+
+		for rowsFromIngredientTable.Next() {
+			var ingredientName string
+			var amount float64
+			var unit string
+			rowsFromIngredientTable.Scan(&ingredientName, &amount, &unit)
+			unitEnum := *grpc.IngredientUnit_quantity.Enum()
+			if unit == "grams" {
+				unitEnum = *grpc.IngredientUnit_grams.Enum()
+			}
+			ingredient := &grpc.Ingredient{
+				Name:   ingredientName,
+				Amount: amount,
+				Unit:   unitEnum,
+			}
+			ingredientArray = append(ingredientArray, ingredient)
+
+		}
+		food := &grpc.Food{
+			Name:         recipeName,
+			Serving:      serving,
+			Ingredient:   ingredientArray,
+			ReferenceUrl: referenceUrl,
+		}
+		foodArray = append(foodArray, food)
 	}
-	foodArray = append(foodArray, food)
 	res := connect.NewResponse(&service.RecommendFood{RecommendFoods: foodArray})
 	return res, nil
 }
