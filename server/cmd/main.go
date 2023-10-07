@@ -62,7 +62,7 @@ func (s *InventoryServer) AddInventory(ctx context.Context, req *connect.Request
 	ingredient := req.Msg.Ingredient
 	unitMap := grpc.IngredientUnit_name
 	unit := unitMap[int32(ingredient.Unit)]
-	result, err := db.Exec("INSERT INTO ingredient (name, amount, unit, user_name,created_at) VALUE (?, ?, ?, ?, ?)", ingredient.Name, ingredient.Amount, unit, user, ingredient.RegisterDate)
+	result, err := db.Exec("INSERT INTO ingredient (name, amount, unit, user_name, created_at) VALUE (?, ?, ?, ?, ?)", ingredient.Name, ingredient.Amount, unit, user, ingredient.RegisterDate)
 
 	if err != nil {
 		fmt.Println("error : " + err.Error())
