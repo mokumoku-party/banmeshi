@@ -61,8 +61,19 @@ func (s *InventoryServer) FetchInventory(ctx context.Context, req *connect.Reque
 }
 
 func (s *InventoryServer) AddInventory(ctx context.Context, req *connect.Request[service.Item]) (*connect.Response[grpc.Void], error) {
+	user := req.Msg.User.Name
+	ingredient := req.Msg.Ingredient
+	unitMap := grpc.IngredientUnit_name
+	unit := unitMap[int32(ingredient.Unit)]
+	result, err := db.Exec("INSERT INTO ingredient (name, amount, unit, user_name, created_at) VALUE (?, ?, ?, ?, ?)", ingredient.Name, ingredient.Amount, unit, user, ingredient.RegisterDate)
+
+	if err != nil {
+		fmt.Println("error : " + err.Error())
+		affectRownum, err := result.RowsAffected()
+		fmt.Sprintln("affect rows count" + fmt.Sprint(affectRownum) + ", error : " + err.Error())
+	}
 	res := connect.NewResponse(&grpc.Void{})
-	return res, nil
+	return res, err
 }
 
 func (s *RecipeServer) FetchRecipe(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[grpc.Food], error) {
