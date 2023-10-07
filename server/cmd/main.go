@@ -11,6 +11,8 @@ import (
 	"github.com/bufbuild/connect-go"
 	"github.com/rs/cors"
 
+	"github.com/redis/rueidis"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/mokumoku-party/banmeshi/server/pkg/grpc"
@@ -19,6 +21,7 @@ import (
 )
 
 var db *sql.DB
+var redisClient rueidis.Client
 
 type InventoryServer struct{}
 
@@ -63,19 +66,47 @@ func (s *InventoryServer) AddInventory(ctx context.Context, req *connect.Request
 }
 
 func (s *RecipeServer) FetchRecipe(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[grpc.Food], error) {
-	resArray := []*grpc.Ingredient{}
-	resStruct := &grpc.Ingredient{
-		Name:         fmt.Sprintf("hoge"),
-		Amount:       1,
-		Unit:         0,
-		RegisterDate: 0,
+
+	recipeName, _ := redisClient.Do(ctx, redisClient.B().Get().Key(req.Msg.Name).Build()).ToString()
+
+	row := db.QueryRow("SELECT id, name, serving, recipe_url FROM recipe WHERE name=?", recipeName)
+
+	var id int
+	var name string
+	var serving int32
+	var referenceUrl string
+	row.Scan(&id, &name, &serving, &referenceUrl)
+
+	rows, _ := db.Query("SELECT name, amount, unit  FROM ingredients_for_recipe WHERE id=?", id)
+
+	ingredient := []*grpc.Ingredient{}
+
+	for rows.Next() {
+		var n string
+		var a float64
+		var unitStr string
+
+		rows.Scan(&n, &a, &unitStr)
+
+		unitEnum := *grpc.IngredientUnit_quantity.Enum()
+		if unitStr == "grams" {
+			unitEnum = *grpc.IngredientUnit_grams.Enum()
+		}
+
+		resStruct := &grpc.Ingredient{
+			Name:   n,
+			Amount: a,
+			Unit:   unitEnum,
+		}
+		ingredient = append(ingredient, resStruct)
+
 	}
-	resArray = append(resArray, resStruct)
+
 	res := connect.NewResponse(&grpc.Food{
-		Name:         fmt.Sprintf("sample_recipe_name"),
-		Serving:      1,
-		Ingredient:   resArray,
-		ReferenceUrl: "hogehoge.com",
+		Name:         name,
+		Serving:      serving,
+		Ingredient:   ingredient,
+		ReferenceUrl: referenceUrl,
 	})
 	return res, nil
 }
@@ -132,6 +163,12 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	redisClient, err = rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{"redis:6379"}})
+
+	if err != nil {
+		panic(err)
+	}
+	defer redisClient.Close()
 
 	inventoryServer := &InventoryServer{}
 	recipeServer := &RecipeServer{}

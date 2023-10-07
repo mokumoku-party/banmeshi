@@ -22,3 +22,9 @@ services:
       - "8080:8080"
     tty: true
     stdin_open: true
+
+  redis:
+    container_name: redis
+    image: redis:6.2.4
+    ports:
+      - "6379:6379"
