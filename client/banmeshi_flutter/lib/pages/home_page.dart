@@ -22,14 +22,32 @@ class HomePage extends HookConsumerWidget {
     final titleList = ['食材', '数量', '買った日'];
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('こんだて: $foodName'),
+        actions: [
+          Text(user!.name),
+          TextButton(
+              onPressed: () {
+                ref.read(userProvider.notifier).logout();
+              },
+              child: const Text('ログアウト')),
+        ],
+      ),
       body: Center(
         child: Column(
           children: [
-            Text('${user?.name ?? '今日'}のこんだて: $foodName'),
             DataTable(
               columns: titleList
-                  .map((title) =>
-                      DataColumn(label: Flexible(child: Text(title))))
+                  .map(
+                    (title) => DataColumn(
+                      label: Flexible(
+                        child: Text(
+                          title,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ),
+                    ),
+                  )
                   .toList(),
               rows: inventory
                   .map(
@@ -44,21 +62,24 @@ class HomePage extends HookConsumerWidget {
                   .toList(),
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
+                ElevatedButton(
                   onPressed: () {
                     ref.read(appRouterProvider).go('/register');
                   },
                   child: const Text('買った'),
                 ),
-                TextButton(
+                const SizedBox(width: 8),
+                ElevatedButton(
                   onPressed: () {
                     ref.read(appRouterProvider).go('/recipe');
                   },
                   child: const Text('作った'),
                 ),
-                TextButton(
+                const SizedBox(width: 8),
+                ElevatedButton(
                   onPressed: () {
                     ref.read(appRouterProvider).go('/recommend');
                   },
