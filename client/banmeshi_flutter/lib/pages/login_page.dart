@@ -12,7 +12,7 @@ class LoginPage extends HookConsumerWidget {
     final isValidState = useState(false);
 
     useEffect(() {
-      Future.microtask(() => ref.read(userProvider.notifier).fetch());
+      Future.microtask(() => ref.read(userProvider.notifier).login());
       return;
     }, const []);
 
@@ -37,7 +37,9 @@ class LoginPage extends HookConsumerWidget {
           TextButton(
             onPressed: textController.text.isNotEmpty
                 ? () {
-                    ref.read(userProvider.notifier).create(textController.text);
+                    ref
+                        .read(userProvider.notifier)
+                        .register(textController.text);
                   }
                 : null,
             child: const Text(
