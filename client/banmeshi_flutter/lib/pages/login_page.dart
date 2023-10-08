@@ -12,6 +12,11 @@ class LoginPage extends HookConsumerWidget {
     final isValidState = useState(false);
 
     useEffect(() {
+      Future.microtask(() => ref.read(userProvider.notifier).fetch());
+      return;
+    }, const []);
+
+    useEffect(() {
       void listener() {
         isValidState.value = textController.text.isNotEmpty;
       }

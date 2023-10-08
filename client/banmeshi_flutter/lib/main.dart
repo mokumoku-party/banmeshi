@@ -1,9 +1,13 @@
 import 'package:banmeshi_flutter/provider/grpc_channel_provider.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+  await Hive.openBox<String>('user');
+
   runApp(const ProviderScope(child: MyApp()));
 }
 

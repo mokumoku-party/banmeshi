@@ -35,7 +35,7 @@ final appRouterProvider = Provider(
           builder: (context, state) => const RegisterPage(),
         )
       ],
-      redirect: (context, state) {
+      redirect: (context, state) async {
         if (user == null) {
           return '/login';
         }
