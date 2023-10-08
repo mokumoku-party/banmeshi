@@ -123,8 +123,12 @@ func (s *RecipeServer) FetchRecipe(ctx context.Context, req *connect.Request[grp
 }
 
 func (s *RecipeServer) SelectRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
+	err := redisClient.Do(ctx, redisClient.B().Set().Key(req.Msg.User.Name).Value(req.Msg.Food.Name).Build()).Error
+	if err != nil {
+		fmt.Println(err)
+	}
 	res := connect.NewResponse(&grpc.Void{})
-	return res, nil
+	return res, err()
 }
 
 func (s *RecipeServer) RegisterFoodAsRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
