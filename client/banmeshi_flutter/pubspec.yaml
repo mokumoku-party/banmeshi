@@ -17,6 +17,8 @@ dependencies:
   grpc: ^3.2.3
   flutter_hooks: ^0.18.6
   fixnum: ^1.1.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:
