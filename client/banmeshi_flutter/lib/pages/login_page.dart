@@ -12,6 +12,11 @@ class LoginPage extends HookConsumerWidget {
     final isValidState = useState(false);
 
     useEffect(() {
+      Future.microtask(() => ref.read(userProvider.notifier).login());
+      return;
+    }, const []);
+
+    useEffect(() {
       void listener() {
         isValidState.value = textController.text.isNotEmpty;
       }
@@ -21,26 +26,38 @@ class LoginPage extends HookConsumerWidget {
       return () => textController.removeListener(listener);
     }, [textController.text]);
 
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextField(
-            decoration: const InputDecoration(hintText: 'なまえ'),
-            controller: textController,
+      body: Center(
+        child: SizedBox(
+          width: screenSize.width * .6,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                decoration: const InputDecoration(hintText: 'なまえ'),
+                controller: textController,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: FilledButton(
+                  onPressed: textController.text.isNotEmpty
+                      ? () {
+                          ref
+                              .read(userProvider.notifier)
+                              .register(textController.text);
+                        }
+                      : null,
+                  child: const Text(
+                    'ログイン',
+                    style: TextStyle(fontSize: 32),
+                  ),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: textController.text.isNotEmpty
-                ? () {
-                    ref.read(userProvider.notifier).create(textController.text);
-                  }
-                : null,
-            child: const Text(
-              'ログイン',
-              style: TextStyle(fontSize: 32),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
