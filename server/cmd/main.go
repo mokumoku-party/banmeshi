@@ -213,7 +213,7 @@ func main() {
 
 	var err error
 	// ローカルで試すときはホスト名を変えること
-	db, err = sql.Open("mysql", "root:password@(127.0.0.1:3306)/banmeshi")
+	db, err = sql.Open("mysql", "root:password@(mysql:3306)/banmeshi")
 
 	defer db.Close()
 
@@ -221,7 +221,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	redisClient, err = rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{"127.0.0.1:6379"}})
+	redisClient, err = rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{"redis:6379"}})
 
 	if err != nil {
 		panic(err)
@@ -246,7 +246,7 @@ func main() {
 	}).Handler(mux)
 
 	http.ListenAndServe(
-		":8081",
+		":8080",
 		corsHandler,
 	)
 }
