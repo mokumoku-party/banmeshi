@@ -128,6 +128,18 @@ func (s *RecipeServer) SelectRecipe(ctx context.Context, req *connect.Request[se
 }
 
 func (s *RecipeServer) RegisterFoodAsRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
+	food := req.Msg.Food
+	result, err := db.Exec("INSERT INTO recipe (name, serving, recipe_url) VALUE (?, ?, ?)", food.Name, food.Serving, food.ReferenceUrl)
+	if err != nil {
+		fmt.Println(err)
+	}
+	id, _ := result.LastInsertId()
+	for _, e := range food.Ingredient {
+		result, err = db.Exec("INSERT INTO ingredients_for_recipe (name, amount, unit, recipe_id) VALUES (?, ?, ?, ?)", e.Name, e.Amount, grpc.IngredientUnit_name[int32(e.Unit)], id)
+		if err != nil {
+			fmt.Println("insert error on RegisterFoodAsRecipe" + err.Error())
+		}
+	}
 	res := connect.NewResponse(&grpc.Void{})
 	return res, nil
 }
@@ -201,7 +213,7 @@ func main() {
 
 	var err error
 	// ローカルで試すときはホスト名を変えること
-	db, err = sql.Open("mysql", "root:password@(mysql:3306)/banmeshi")
+	db, err = sql.Open("mysql", "root:password@(127.0.0.1:3306)/banmeshi")
 
 	defer db.Close()
 
@@ -209,7 +221,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	redisClient, err = rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{"redis:6379"}})
+	redisClient, err = rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{"127.0.0.1:6379"}})
 
 	if err != nil {
 		panic(err)
@@ -234,7 +246,7 @@ func main() {
 	}).Handler(mux)
 
 	http.ListenAndServe(
-		":8080",
+		":8081",
 		corsHandler,
 	)
 }
