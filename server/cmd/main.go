@@ -132,6 +132,18 @@ func (s *RecipeServer) SelectRecipe(ctx context.Context, req *connect.Request[se
 }
 
 func (s *RecipeServer) RegisterFoodAsRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
+	food := req.Msg.Food
+	result, err := db.Exec("INSERT INTO recipe (name, serving, recipe_url) VALUE (?, ?, ?)", food.Name, food.Serving, food.ReferenceUrl)
+	if err != nil {
+		fmt.Println(err)
+	}
+	id, _ := result.LastInsertId()
+	for _, e := range food.Ingredient {
+		result, err = db.Exec("INSERT INTO ingredients_for_recipe (name, amount, unit, recipe_id) VALUES (?, ?, ?, ?)", e.Name, e.Amount, grpc.IngredientUnit_name[int32(e.Unit)], id)
+		if err != nil {
+			fmt.Println("insert error on RegisterFoodAsRecipe" + err.Error())
+		}
+	}
 	res := connect.NewResponse(&grpc.Void{})
 	return res, nil
 }
