@@ -22,7 +22,8 @@ class MyApp extends HookConsumerWidget {
     return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 220, 95, 6)),
         useMaterial3: true,
       ),
       routerConfig: router,
