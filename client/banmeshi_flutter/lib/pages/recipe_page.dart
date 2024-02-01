@@ -153,8 +153,9 @@ class RecipePage extends HookConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () async {
-                        final ingredient =
-                            ingredientList().map((e) => e.ingredient);
+                        final ingredient = ingredientList()
+                            .map((e) => e.ingredient)
+                            .where((e) => e.name.isNotEmpty);
 
                         final user = ref.read(userProvider);
                         if (user == null) return;
