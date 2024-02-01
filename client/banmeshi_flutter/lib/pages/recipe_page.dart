@@ -1,6 +1,9 @@
+import 'package:banmeshi_flutter/gen/proto/food.pb.dart';
 import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/model/inventory_controller.dart';
 import 'package:banmeshi_flutter/model/recipe_controller.dart';
+import 'package:banmeshi_flutter/model/user_controller.dart';
+import 'package:banmeshi_flutter/repository/recipe_repository.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
 import 'package:banmeshi_flutter/widget/ingredient_form.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +26,10 @@ class RecipePage extends HookConsumerWidget {
       return;
     }, const []);
 
+    final titleController = useTextEditingController();
+    final servingController = useTextEditingController();
+    final urlController = useTextEditingController();
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -34,8 +41,37 @@ class RecipePage extends HookConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const TextField(
-                      decoration: InputDecoration(hintText: 'カレー'),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          flex: 7,
+                          child: TextField(
+                            controller: titleController,
+                            decoration: const InputDecoration(hintText: 'カレー'),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 8),
+                            child: TextField(
+                              controller: servingController,
+                              decoration: const InputDecoration(hintText: '2'),
+                            ),
+                          ),
+                        ),
+                        const Flexible(
+                          child: Text('人前'),
+                        )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: TextField(
+                        controller: urlController,
+                        decoration: const InputDecoration(hintText: '参考URL'),
+                      ),
                     ),
                     DragTarget<Ingredient>(
                       builder: (context, candidateData, rejectedData) {
@@ -116,8 +152,24 @@ class RecipePage extends HookConsumerWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
-                        // TODO: push data to server.
+                      onPressed: () async {
+                        final ingredient = ingredientList()
+                            .map((e) => e.ingredient)
+                            .where((e) => e.name.isNotEmpty);
+
+                        final user = ref.read(userProvider);
+                        if (user == null) return;
+
+                        final food = Food(
+                          ingredient: ingredient,
+                          name: titleController.text,
+                          serving: int.parse(servingController.text),
+                          referenceUrl: urlController.text,
+                        );
+
+                        await ref
+                            .read(recipeRepositoryProvider)
+                            .registerRecipe(user, food);
 
                         ref.read(appRouterProvider).go('/');
                       },
