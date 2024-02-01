@@ -3,13 +3,13 @@ CREATE DATABASE IF NOT EXISTS banmeshi DEFAULT CHARACTER SET utf8mb4;
 
 USE banmeshi;
 
-CREATE TABLE ingredient (`id` INT AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, `amount` INT NOT NULL, `unit` ENUM('quantity','grams') NOT NULL, `user_name` VARCHAR(255) NOT NULL,`created_at` BIGINT NOT NULL ,PRIMARY KEY(id));
+CREATE TABLE ingredient (`id` INT AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, `amount` INT NOT NULL, `unit` ENUM('unknown', 'quantity','grams') NOT NULL, `user_name` VARCHAR(255) NOT NULL,`created_at` BIGINT NOT NULL ,PRIMARY KEY(id));
 
 CREATE TABLE cooked_food(`id` INT AUTO_INCREMENT NOT NULL, `user_name` VARCHAR(255) NOT NULL, `recipe_id` INT,`created_at` BIGINT NOT NULL , PRIMARY KEY(id) );
 
 CREATE TABLE recipe (`id` INT AUTO_INCREMENT NOT NULL, `name` VARCHAR(255), `serving` INT NOT NULL, `recipe_url` VARCHAR(511), PRIMARY KEY(id) );
 
-CREATE TABLE ingredients_for_recipe(`id` INT AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, `amount` INT NOT NULL, `unit` ENUM('quantity','grams') NOT NULL, `recipe_id` INT NOT NULL, PRIMARY KEY(id));
+CREATE TABLE ingredients_for_recipe(`id` INT AUTO_INCREMENT NOT NULL, `name` VARCHAR(255) NOT NULL, `amount` INT NOT NULL, `unit` ENUM('unknown','quantity','grams') NOT NULL, `recipe_id` INT NOT NULL, PRIMARY KEY(id));
 
 INSERT INTO recipe (name, serving, recipe_url) VALUES ('カレー','4','hoge.com');
 
