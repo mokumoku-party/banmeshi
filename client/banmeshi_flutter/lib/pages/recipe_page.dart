@@ -1,6 +1,9 @@
+import 'package:banmeshi_flutter/gen/proto/food.pb.dart';
 import 'package:banmeshi_flutter/gen/proto/ingredient.pb.dart';
 import 'package:banmeshi_flutter/model/inventory_controller.dart';
 import 'package:banmeshi_flutter/model/recipe_controller.dart';
+import 'package:banmeshi_flutter/model/user_controller.dart';
+import 'package:banmeshi_flutter/repository/recipe_repository.dart';
 import 'package:banmeshi_flutter/routes/app_router.dart';
 import 'package:banmeshi_flutter/widget/ingredient_form.dart';
 import 'package:flutter/material.dart';
@@ -116,8 +119,23 @@ class RecipePage extends HookConsumerWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
-                        // TODO: push data to server.
+                      onPressed: () async {
+                        final ingredient =
+                            ingredientList().map((e) => e.ingredient);
+
+                        final user = ref.read(userProvider);
+                        if (user == null) return;
+
+                        final food = Food(
+                          ingredient: ingredient,
+                          name: 'カレー',
+                          serving: 2,
+                          referenceUrl: 'http://example.com',
+                        );
+
+                        await ref
+                            .read(recipeRepositoryProvider)
+                            .registerRecipe(user, food);
 
                         ref.read(appRouterProvider).go('/');
                       },
