@@ -4,7 +4,7 @@
 //
 // @dart = 2.12
 
-// ignore_for_file: annotate_overrides, camel_case_types
+// ignore_for_file: annotate_overrides, camel_case_types, comment_references
 // ignore_for_file: constant_identifier_names, library_prefixes
 // ignore_for_file: non_constant_identifier_names, prefer_final_fields
 // ignore_for_file: unnecessary_import, unnecessary_this, unused_import
@@ -18,8 +18,29 @@ import 'ingredient.pbenum.dart';
 
 export 'ingredient.pbenum.dart';
 
+/// 食材
 class Ingredient extends $pb.GeneratedMessage {
-  factory Ingredient() => create();
+  factory Ingredient({
+    $core.String? name,
+    $core.double? amount,
+    IngredientUnit? unit,
+    $fixnum.Int64? registerDate,
+  }) {
+    final $result = create();
+    if (name != null) {
+      $result.name = name;
+    }
+    if (amount != null) {
+      $result.amount = amount;
+    }
+    if (unit != null) {
+      $result.unit = unit;
+    }
+    if (registerDate != null) {
+      $result.registerDate = registerDate;
+    }
+    return $result;
+  }
   Ingredient._() : super();
   factory Ingredient.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Ingredient.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
@@ -27,7 +48,7 @@ class Ingredient extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Ingredient', createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..a<$core.double>(2, _omitFieldNames ? '' : 'amount', $pb.PbFieldType.OD)
-    ..e<IngredientUnit>(3, _omitFieldNames ? '' : 'unit', $pb.PbFieldType.OE, defaultOrMaker: IngredientUnit.quantity, valueOf: IngredientUnit.valueOf, enumValues: IngredientUnit.values)
+    ..e<IngredientUnit>(3, _omitFieldNames ? '' : 'unit', $pb.PbFieldType.OE, defaultOrMaker: IngredientUnit.unknown, valueOf: IngredientUnit.valueOf, enumValues: IngredientUnit.values)
     ..aInt64(4, _omitFieldNames ? '' : 'registerDate')
     ..hasRequiredFields = false
   ;
@@ -53,6 +74,7 @@ class Ingredient extends $pb.GeneratedMessage {
   static Ingredient getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Ingredient>(create);
   static Ingredient? _defaultInstance;
 
+  /// 食材名
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -62,6 +84,7 @@ class Ingredient extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearName() => clearField(1);
 
+  /// 数量
   @$pb.TagNumber(2)
   $core.double get amount => $_getN(1);
   @$pb.TagNumber(2)
@@ -71,6 +94,7 @@ class Ingredient extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearAmount() => clearField(2);
 
+  /// 単位
   @$pb.TagNumber(3)
   IngredientUnit get unit => $_getN(2);
   @$pb.TagNumber(3)
@@ -80,6 +104,7 @@ class Ingredient extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearUnit() => clearField(3);
 
+  /// 登録した日にち
   @$pb.TagNumber(4)
   $fixnum.Int64 get registerDate => $_getI64(3);
   @$pb.TagNumber(4)

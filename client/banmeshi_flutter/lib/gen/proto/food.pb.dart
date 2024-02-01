@@ -4,7 +4,7 @@
 //
 // @dart = 2.12
 
-// ignore_for_file: annotate_overrides, camel_case_types
+// ignore_for_file: annotate_overrides, camel_case_types, comment_references
 // ignore_for_file: constant_identifier_names, library_prefixes
 // ignore_for_file: non_constant_identifier_names, prefer_final_fields
 // ignore_for_file: unnecessary_import, unnecessary_this, unused_import
@@ -15,8 +15,29 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'ingredient.pb.dart' as $0;
 
+/// 料理
 class Food extends $pb.GeneratedMessage {
-  factory Food() => create();
+  factory Food({
+    $core.String? name,
+    $core.int? serving,
+    $core.Iterable<$0.Ingredient>? ingredient,
+    $core.String? referenceUrl,
+  }) {
+    final $result = create();
+    if (name != null) {
+      $result.name = name;
+    }
+    if (serving != null) {
+      $result.serving = serving;
+    }
+    if (ingredient != null) {
+      $result.ingredient.addAll(ingredient);
+    }
+    if (referenceUrl != null) {
+      $result.referenceUrl = referenceUrl;
+    }
+    return $result;
+  }
   Food._() : super();
   factory Food.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Food.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
@@ -50,6 +71,7 @@ class Food extends $pb.GeneratedMessage {
   static Food getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Food>(create);
   static Food? _defaultInstance;
 
+  /// 料理名
   @$pb.TagNumber(1)
   $core.String get name => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -59,6 +81,7 @@ class Food extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearName() => clearField(1);
 
+  /// 何人前
   @$pb.TagNumber(2)
   $core.int get serving => $_getIZ(1);
   @$pb.TagNumber(2)
@@ -68,9 +91,11 @@ class Food extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearServing() => clearField(2);
 
+  /// 必要な食材リスト
   @$pb.TagNumber(3)
   $core.List<$0.Ingredient> get ingredient => $_getList(2);
 
+  /// レシピのURL
   @$pb.TagNumber(4)
   $core.String get referenceUrl => $_getSZ(3);
   @$pb.TagNumber(4)
