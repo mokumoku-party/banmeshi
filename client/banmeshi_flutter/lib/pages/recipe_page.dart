@@ -26,6 +26,10 @@ class RecipePage extends HookConsumerWidget {
       return;
     }, const []);
 
+    final titleController = useTextEditingController();
+    final servingController = useTextEditingController();
+    final urlController = useTextEditingController();
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -37,8 +41,37 @@ class RecipePage extends HookConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const TextField(
-                      decoration: InputDecoration(hintText: 'カレー'),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          flex: 7,
+                          child: TextField(
+                            controller: titleController,
+                            decoration: const InputDecoration(hintText: 'カレー'),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 8),
+                            child: TextField(
+                              controller: servingController,
+                              decoration: const InputDecoration(hintText: '2'),
+                            ),
+                          ),
+                        ),
+                        const Flexible(
+                          child: Text('人前'),
+                        )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: TextField(
+                        controller: urlController,
+                        decoration: const InputDecoration(hintText: '参考URL'),
+                      ),
                     ),
                     DragTarget<Ingredient>(
                       builder: (context, candidateData, rejectedData) {
@@ -128,9 +161,9 @@ class RecipePage extends HookConsumerWidget {
 
                         final food = Food(
                           ingredient: ingredient,
-                          name: 'カレー',
-                          serving: 2,
-                          referenceUrl: 'http://example.com',
+                          name: titleController.text,
+                          serving: int.parse(servingController.text),
+                          referenceUrl: urlController.text,
                         );
 
                         await ref
