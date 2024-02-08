@@ -16,6 +16,7 @@ class RecipePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ingredientCount = useState(1);
+    final acceptIngredient = useState<Ingredient?>(null);
     final inventory = ref.watch(inventoryProvider.select((v) => v.ingredients));
 
     ingredientList() => List.generate(ingredientCount.value,
@@ -82,7 +83,13 @@ class RecipePage extends HookConsumerWidget {
                             children: [
                               ...List.generate(
                                 ingredientCount.value,
-                                (index) => IngredientForm(index),
+                                (index) => IngredientForm(
+                                  index,
+                                  initIngredient:
+                                      (index == ingredientCount.value - 1)
+                                          ? acceptIngredient.value
+                                          : null,
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(16),
@@ -101,16 +108,13 @@ class RecipePage extends HookConsumerWidget {
                       onWillAccept: (data) => ingredientList().every(
                           (state) => state.ingredient.name != data?.name),
                       onAccept: (data) {
-                        ingredientCount.value++;
-
-                        final lastIndex = ingredientCount.value - 1;
                         final ingredient = Ingredient()
                           ..name = data.name
                           ..amount = data.amount;
 
-                        ref
-                            .read(recipeControllerProvider(lastIndex).notifier)
-                            .update(ingredient);
+                        acceptIngredient.value = ingredient;
+
+                        ingredientCount.value++;
                       },
                     ),
                   ],
