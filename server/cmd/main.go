@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"context"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/bufbuild/connect-go"
 	"github.com/rs/cors"
+	"golang.org/x/exp/slog"
 
 	"github.com/redis/rueidis"
 
@@ -22,6 +24,7 @@ import (
 
 var db *sql.DB
 var redisClient rueidis.Client
+var logger *slog.Logger
 
 type InventoryServer struct{}
 
@@ -32,7 +35,7 @@ type HcServer struct{}
 func (s *InventoryServer) FetchInventory(ctx context.Context, req *connect.Request[grpc.User]) (*connect.Response[service.Inventory], error) {
 	rows, err := db.Query("select name, amount, unit, created_at from ingredient where user_name=?", req.Msg.Name)
 	if err != nil {
-		fmt.Println("database error on FetchInventory")
+		logger.Error("database error on FetchInventory")
 	}
 	resArray := []*grpc.Ingredient{}
 
@@ -68,7 +71,7 @@ func (s *InventoryServer) AddInventory(ctx context.Context, req *connect.Request
 	result, err := db.Exec("INSERT INTO ingredient (name, amount, unit, user_name, created_at) VALUE (?, ?, ?, ?, ?)", ingredient.Name, ingredient.Amount, unit, user, ingredient.RegisterDate)
 
 	if err != nil {
-		fmt.Println("error : " + err.Error())
+		logger.Error("error : " + err.Error())
 		affectRownum, err := result.RowsAffected()
 		fmt.Sprintln("affect rows count" + fmt.Sprint(affectRownum) + ", error : " + err.Error())
 	}
@@ -125,7 +128,7 @@ func (s *RecipeServer) FetchRecipe(ctx context.Context, req *connect.Request[grp
 func (s *RecipeServer) SelectRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
 	err := redisClient.Do(ctx, redisClient.B().Set().Key(req.Msg.User.Name).Value(req.Msg.Food.Name).Build()).Error()
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 	}
 	res := connect.NewResponse(&grpc.Void{})
 	return res, err
@@ -135,13 +138,13 @@ func (s *RecipeServer) RegisterFoodAsRecipe(ctx context.Context, req *connect.Re
 	food := req.Msg.Food
 	result, err := db.Exec("INSERT INTO recipe (name, serving, recipe_url) VALUE (?, ?, ?)", food.Name, food.Serving, food.ReferenceUrl)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 	}
 	id, _ := result.LastInsertId()
 	for _, e := range food.Ingredient {
 		result, err = db.Exec("INSERT INTO ingredients_for_recipe (name, amount, unit, recipe_id) VALUES (?, ?, ?, ?)", e.Name, e.Amount, grpc.IngredientUnit_name[int32(e.Unit)], id)
 		if err != nil {
-			fmt.Println("insert error on RegisterFoodAsRecipe" + err.Error())
+			logger.Error("insert error on RegisterFoodAsRecipe" + err.Error())
 		}
 	}
 	res := connect.NewResponse(&grpc.Void{})
@@ -155,7 +158,7 @@ func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Re
 	rows, err := db.Query("SELECT id, name, serving, recipe_url FROM recipe")
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 	}
 
 	foodArray := []*grpc.Food{}
@@ -170,7 +173,7 @@ func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Re
 		rowsFromIngredientTable, err := db.Query("SELECT name, amount, unit FROM ingredients_for_recipe WHERE recipe_id=?", id)
 
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err.Error())
 		}
 
 		ingredientArray := []*grpc.Ingredient{}
@@ -215,6 +218,8 @@ func (s *HcServer) CheckDatabaseStatus(ctx context.Context, req *connect.Request
 
 func main() {
 
+	file, _ := os.Create("server.log")
+	logger := slog.New(slog.NewTextHandler(file, nil))
 	var err error
 	// ローカルで試すときはホスト名を変えること
 	db, err = sql.Open("mysql", "root:password@(mysql:3306)/banmeshi")
@@ -222,13 +227,13 @@ func main() {
 	defer db.Close()
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return
 	}
 	redisClient, err = rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{"redis:6379"}})
 
 	if err != nil {
-		panic(err)
+		logger.Error(err.Error())
 	}
 	defer redisClient.Close()
 
@@ -248,6 +253,7 @@ func main() {
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"Content-Type", "X-Grpc-Web", "X-User-Agent"},
 	}).Handler(mux)
+	logger.Info("server started")
 
 	http.ListenAndServe(
 		":8080",
