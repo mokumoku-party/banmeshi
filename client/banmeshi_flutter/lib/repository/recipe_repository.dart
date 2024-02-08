@@ -22,4 +22,7 @@ class RecipeRepository {
           ..food = food
           ..user = user,
       );
+
+  Future<RecommendFood> fetchRecommendRecipe(User user) =>
+      client.fetchRecommendRecipe(user);
 }
