@@ -36,6 +36,7 @@ func (s *InventoryServer) FetchInventory(ctx context.Context, req *connect.Reque
 	rows, err := db.Query("select name, amount, unit, created_at from ingredient where user_name=?", req.Msg.Name)
 	if err != nil {
 		logger.Error("database error on FetchInventory")
+		logger.Error(err.Error())
 	}
 	resArray := []*grpc.Ingredient{}
 
@@ -60,6 +61,7 @@ func (s *InventoryServer) FetchInventory(ctx context.Context, req *connect.Reque
 		resArray = append(resArray, resStruct)
 	}
 	res := connect.NewResponse(&service.Inventory{Ingredients: resArray})
+	logger.Info("FetchInventory success")
 	return res, err
 }
 
@@ -71,11 +73,13 @@ func (s *InventoryServer) AddInventory(ctx context.Context, req *connect.Request
 	result, err := db.Exec("INSERT INTO ingredient (name, amount, unit, user_name, created_at) VALUE (?, ?, ?, ?, ?)", ingredient.Name, ingredient.Amount, unit, user, ingredient.RegisterDate)
 
 	if err != nil {
+		logger.Error("database error on AddInventory")
 		logger.Error("error : " + err.Error())
 		affectRownum, err := result.RowsAffected()
-		fmt.Sprintln("affect rows count" + fmt.Sprint(affectRownum) + ", error : " + err.Error())
+		logger.Error("affect rows count" + fmt.Sprint(affectRownum) + ", error : " + err.Error())
 	}
 	res := connect.NewResponse(&grpc.Void{})
+	logger.Info("AddInventory success")
 	return res, err
 }
 
@@ -91,7 +95,12 @@ func (s *RecipeServer) FetchRecipe(ctx context.Context, req *connect.Request[grp
 	var referenceUrl string
 	row.Scan(&id, &name, &serving, &referenceUrl)
 
-	rows, _ := db.Query("SELECT name, amount, unit  FROM ingredients_for_recipe WHERE id=?", id)
+	rows, err := db.Query("SELECT name, amount, unit  FROM ingredients_for_recipe WHERE id=?", id)
+
+	if err != nil {
+		logger.Error("database error on FetchRecipe")
+		logger.Error(err.Error())
+	}
 
 	ingredient := []*grpc.Ingredient{}
 
@@ -122,15 +131,18 @@ func (s *RecipeServer) FetchRecipe(ctx context.Context, req *connect.Request[grp
 		Ingredient:   ingredient,
 		ReferenceUrl: referenceUrl,
 	})
+	logger.Info("FetchRecipe success")
 	return res, nil
 }
 
 func (s *RecipeServer) SelectRecipe(ctx context.Context, req *connect.Request[service.Recipe]) (*connect.Response[grpc.Void], error) {
 	err := redisClient.Do(ctx, redisClient.B().Set().Key(req.Msg.User.Name).Value(req.Msg.Food.Name).Build()).Error()
 	if err != nil {
+		logger.Error("redis error on SelectRecipe")
 		logger.Error(err.Error())
 	}
 	res := connect.NewResponse(&grpc.Void{})
+	logger.Info("SelectRecipe success")
 	return res, err
 }
 
@@ -148,6 +160,7 @@ func (s *RecipeServer) RegisterFoodAsRecipe(ctx context.Context, req *connect.Re
 		}
 	}
 	res := connect.NewResponse(&grpc.Void{})
+	logger.Info("RegisterFoodAsRecipe success")
 	return res, nil
 }
 
@@ -158,6 +171,8 @@ func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Re
 	rows, err := db.Query("SELECT id, name, serving, recipe_url FROM recipe")
 
 	if err != nil {
+		logger.Error("database error on FetchRecommendRecie")
+		logger.Error("Query : SELECT id, name, serving, recipe_url FROM recipe")
 		logger.Error(err.Error())
 	}
 
@@ -173,6 +188,8 @@ func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Re
 		rowsFromIngredientTable, err := db.Query("SELECT name, amount, unit FROM ingredients_for_recipe WHERE recipe_id=?", id)
 
 		if err != nil {
+			logger.Error("database error on FetchRecommendRecie")
+			logger.Error("Query : SELECT name, amount, unit FROM ingredients_for_recipe WHERE recipe_id=?")
 			logger.Error(err.Error())
 		}
 
@@ -204,6 +221,7 @@ func (s *RecipeServer) FetchRecommendRecipe(ctx context.Context, req *connect.Re
 		foodArray = append(foodArray, food)
 	}
 	res := connect.NewResponse(&service.RecommendFood{RecommendFoods: foodArray})
+	logger.Info("FetchRecommendRecipe success")
 	return res, nil
 }
 
