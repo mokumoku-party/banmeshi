@@ -55,7 +55,7 @@ class HomePage extends HookConsumerWidget {
                       cells: [
                         row.name,
                         row.amount.toString(),
-                        row.registerDate.toString()
+                        "${DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(row.registerDate.toInt())).inDays}日前",
                       ].map(((data) => DataCell(Text(data)))).toList(),
                     ),
                   )
