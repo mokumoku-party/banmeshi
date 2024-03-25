@@ -11,4 +11,7 @@ require (
 	google.golang.org/protobuf v1.31.0
 )
 
-require github.com/onsi/ginkgo v1.16.5 // indirect
+require (
+	github.com/onsi/ginkgo v1.16.5 // indirect
+	golang.org/x/exp v0.0.0-20240205201215-2c58cdc269a3 // indirect
+)
